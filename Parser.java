@@ -11,7 +11,7 @@ public class Parser
 
     while(!current_token.type.equals("eof"))
     {
-      System.out.println(current_token);
+      System.out.println(current_token.type + " " + current_token.value);
       current_token = get_next_token();
     }
   }
@@ -27,28 +27,37 @@ public class Parser
 
     if(isAlphanumeric(letter))
     {
-      String identifier = "";
-
-      while(isAlphanumeric(letter))
-      {
-        identifier += Character.toString(letter);
-        
-        if(pos > text.length() -1)
-          break;
-
-        letter = consume_letter();
-      }
-
-      return new Token(identifier, "identifier");
+      return consume_identifier(letter);
     }
 
-    consume_letter();
-    return new Token(Character.toString(letter), "letter");
+    if(letter == "\"".charAt(0))
+    {
+      return consume_string(letter);
+    }
+
+    if(letter == "(".charAt(0))
+    {
+      pos++;
+      return new Token("(", "oparam");
+    }
+
+    if(letter == ")".charAt(0))
+    {
+      pos++;
+      return new Token(")", "cparam");
+    }
+
+    Token token = new Token(Character.toString(letter), "letter");
+
+    if(pos < text.length() -2)
+      consume_letter();
+
+    return token;
   }
 
   public char consume_letter()
   {
-    return text.charAt(pos++);
+    return text.charAt(++pos);
   }
 
   public char remove_whitespaces(char letter)
@@ -59,6 +68,43 @@ public class Parser
     }
 
     return letter;
+  }
+
+  public Token consume_string(char letter)
+  {
+    String string = "";
+
+    letter = consume_letter();
+
+    while(letter != "\"".charAt(0))
+    {
+      string += Character.toString(letter);
+
+      if(pos > text.length() -2)
+        break;
+
+      letter = consume_letter();
+    }
+
+    pos++;
+    return new Token(string, "string");
+  }
+
+  public Token consume_identifier(char letter)
+  {
+    String identifier = "";
+
+    while(isAlphanumeric(letter))
+    {
+      identifier += Character.toString(letter);
+        
+      if(pos > text.length() -2)
+        break;
+
+      letter = consume_letter();
+    }
+
+    return new Token(identifier, "identifier");
   }
 
   public boolean isAlphanumeric(char letter)
