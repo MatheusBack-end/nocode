@@ -6,21 +6,44 @@ public class Parser
   public Parser(String text)
   {
     this.text = text;
-    get_next_token();
+
+    Token current_token = get_next_token();
+
+    while(!current_token.type.equals("eof"))
+    {
+      System.out.println(current_token);
+      current_token = get_next_token();
+    }
   }
 
   public Token get_next_token()
   {
-    char letter = remove_whitespaces(text.charAt(pos));
-
     if(pos > text.length() -1)
     {
-      return new Token();
+      return new Token("", "eof");
     }
 
-    System.out.println(letter);
+    char letter = remove_whitespaces(text.charAt(pos));
 
-    return null;
+    if(isAlphanumeric(letter))
+    {
+      String identifier = "";
+
+      while(isAlphanumeric(letter))
+      {
+        identifier += Character.toString(letter);
+        
+        if(pos > text.length() -1)
+          break;
+
+        letter = consume_letter();
+      }
+
+      return new Token(identifier, "identifier");
+    }
+
+    consume_letter();
+    return new Token(Character.toString(letter), "letter");
   }
 
   public char consume_letter()
@@ -36,5 +59,13 @@ public class Parser
     }
 
     return letter;
+  }
+
+  public boolean isAlphanumeric(char letter)
+  { 
+    if(!Character.isLetterOrDigit(letter))
+      return false;
+
+    return true;
   }
 }

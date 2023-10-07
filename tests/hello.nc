@@ -1,0 +1,1 @@
+emita("ola, mundo")
