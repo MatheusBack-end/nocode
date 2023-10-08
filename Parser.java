@@ -67,6 +67,12 @@ public class Parser
       pos++;
       return new Token(";", "close_block");
     }
+    
+    if(letter == "=".charAt(0))
+    {
+      pos++;
+      return new Token("=", "equals");
+    }
 
     Token token = new Token(Character.toString(letter), "letter");
 

@@ -5,7 +5,7 @@ public class Interpreter
 {
   Parser parser;
   Token current_token;
-
+  Map<String, String> variables = new HashMap<String, String>();
 
   public void emita(String value)
   {
@@ -15,6 +15,8 @@ public class Interpreter
   public Interpreter(Parser parser)
   {
     this.parser = parser;
+    variables.clear();
+
     interpreter();
   }
 
@@ -106,7 +108,21 @@ public class Interpreter
 
         while(current_token.type != "cparam")
         {
-          args.add((String) current_token.value);
+          if(current_token.type == "identifier")
+          {
+            if(!variables.containsKey(current_token.value))
+            {
+              System.out.println("varival: \"" + current_token.value + "\" não foi definida >:[");
+              System.exit(1);
+            }
+            args.add((String) variables.get(current_token.value));
+          }
+
+          else
+          {
+            args.add((String) current_token.value);
+          }
+
           consume_token("identifier", "string");
         }
 
@@ -124,6 +140,17 @@ public class Interpreter
         {
           System.out.println(e);
         }
+      }
+
+      if(current_token.type == "equals")
+      {
+        consume_token("equals");
+        
+        Token value = current_token;
+        consume_token("string");
+
+        variables.put(identifier.value, value.value);
+        return true;
       }
     }
 
