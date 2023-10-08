@@ -6,6 +6,9 @@ public class Interpreter
   Parser parser;
   Token current_token;
   Map<String, String> variables = new HashMap<String, String>();
+  Map<String, List<Token>> functions = new HashMap<String, List<Token>>();
+
+  int offset;
 
   public void emita(String value)
   {
@@ -23,7 +26,11 @@ public class Interpreter
   public void interpreter()
   {
     current_token = parser.get_next_token();
-    while(eat()){}
+
+    while(current_token.type != "eof")
+    {
+      eat();
+    }
   }
 
   public void consume_token(String... token_type)
@@ -128,6 +135,12 @@ public class Interpreter
 
         consume_token("cparam");
 
+        if(functions.containsKey(identifier.value))
+        {
+          invoke_function(identifier.value);
+          return true;
+        }
+
         try
         {
           Method method = Interpreter.class.getMethod(identifier.value, String.class);
@@ -152,8 +165,84 @@ public class Interpreter
         variables.put(identifier.value, value.value);
         return true;
       }
+
+      if(current_token.type == "block")
+      {
+        consume_token("block");
+        List<Token> function_block = new ArrayList<Token>();
+
+        while(current_token.type != "close_block")
+        {
+          function_block.add(current_token);
+          consume_token();
+        }
+
+        consume_token("close_block");
+        functions.put(identifier.value, function_block);
+      }
     }
 
     return false;
+  }
+
+  public void consume_function_token(String name)
+  {
+    ++offset;
+  }
+
+  public Token get_function_token(String name)
+  {
+    return functions.get(name).get(offset);
+  }
+
+  public void invoke_function(String name)
+  {
+    offset = 0;
+
+    while(offset < functions.get(name).size())
+    {
+      eat_function(name);
+    }
+
+    offset = 0;
+  }
+
+  public void eat_function(String name)
+  {
+    if(get_function_token(name).type == "identifier")
+    {
+      Token identifier = get_function_token(name);
+      consume_function_token(name);
+
+      if(get_function_token(name).type == "oparam")
+      {
+        consume_function_token(name);
+
+        List<String> args = new ArrayList<String>();
+
+        while(get_function_token(name).type != "cparam")
+        {
+          args.add(get_function_token(name).value);
+          consume_function_token(name);
+        }
+
+        consume_function_token(name);
+
+        try
+        {
+          Method method = Interpreter.class.getMethod(identifier.value, String.class);
+          method.invoke(this, args.get(0));
+
+          return;
+        }
+
+        catch(Exception e)
+        {
+          System.out.println(e);
+        }
+      }
+      System.out.println(get_function_token(name).type);
+      System.exit(0);
+    }
   }
 }
