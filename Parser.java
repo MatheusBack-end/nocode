@@ -19,7 +19,24 @@ public class Parser
 
     if(isAlphanumeric(letter))
     {
-      return consume_identifier(letter);
+      Token identifier = consume_identifier(letter);
+
+      if(identifier.value.equals("se"))
+      {
+        return new Token(identifier.value, "keyword");
+      }
+
+      if(identifier.value.equals("verdade"))
+      {
+        return new Token("true", "literal_boolean");
+      }
+
+      if(identifier.value.equals("falso"))
+      {
+        return new Token("false", "literal_boolean");
+      }
+
+      return identifier;
     }
 
     if(letter == "\"".charAt(0))
@@ -37,6 +54,18 @@ public class Parser
     {
       pos++;
       return new Token(")", "cparam");
+    }
+
+    if(letter == ":".charAt(0))
+    {
+      pos++;
+      return new Token(":", "block");
+    }
+
+    if(letter == ";".charAt(0))
+    {
+      pos++;
+      return new Token(";", "close_block");
     }
 
     Token token = new Token(Character.toString(letter), "letter");

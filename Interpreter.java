@@ -38,8 +38,61 @@ public class Interpreter
     System.out.println("token inesperado");
   }
 
+  public void consume_token()
+  {
+    current_token = parser.get_next_token();
+  }
+
+  public boolean codition(List<Token> expression)
+  {
+    if(Boolean.parseBoolean(expression.get(0).value))
+    {
+      return true;
+    }
+
+    return false;
+  }
+
   public boolean eat()
   {
+    if(current_token.type == "close_block")
+    {
+      consume_token();
+      return true;
+    }
+
+    if(current_token.type == "keyword")
+    {
+      consume_token("keyword");
+
+      List<Token> expression = new ArrayList<Token>();
+
+      while(current_token.type != "block")
+      {
+        expression.add(current_token);
+        consume_token();
+      }
+
+      consume_token("block");
+
+      if(!codition(expression))
+      {
+        List<Token> if_block = new ArrayList<Token>();
+
+        while(current_token.type != "close_block")
+        {
+          if_block.add(current_token);
+          consume_token();
+        }
+
+        consume_token("close_block");
+
+        return true;
+      }
+
+      return true;
+    }
+
     if(current_token.type == "identifier")
     {
       Token identifier = current_token;
@@ -57,10 +110,14 @@ public class Interpreter
           consume_token("identifier", "string");
         }
 
+        consume_token("cparam");
+
         try
         {
           Method method = Interpreter.class.getMethod(identifier.value, String.class);
           method.invoke(this, args.get(0));
+
+          return true;
         } 
 
         catch(Exception e)
