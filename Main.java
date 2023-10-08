@@ -6,7 +6,7 @@ class Main
   public static void main(String[] args)
   {
     String file_data = read_file(args[1]);
-    Parser parser = new Parser(file_data);
+    new Interpreter(new Parser(file_data));
   }
 
   public static String read_file(String path)

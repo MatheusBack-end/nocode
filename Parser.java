@@ -6,14 +6,6 @@ public class Parser
   public Parser(String text)
   {
     this.text = text;
-
-    Token current_token = get_next_token();
-
-    while(!current_token.type.equals("eof"))
-    {
-      System.out.println(current_token.type + " " + current_token.value);
-      current_token = get_next_token();
-    }
   }
 
   public Token get_next_token()
