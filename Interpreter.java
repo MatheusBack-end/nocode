@@ -8,8 +8,6 @@ public class Interpreter
   Map<String, String> variables = new HashMap<String, String>();
   Map<String, List<Token>> functions = new HashMap<String, List<Token>>();
 
-  int offset;
-
   public void emita(String value)
   {
     System.out.println(value);
@@ -185,64 +183,8 @@ public class Interpreter
     return false;
   }
 
-  public void consume_function_token(String name)
-  {
-    ++offset;
-  }
-
-  public Token get_function_token(String name)
-  {
-    return functions.get(name).get(offset);
-  }
-
   public void invoke_function(String name)
   {
-    offset = 0;
-
-    while(offset < functions.get(name).size())
-    {
-      eat_function(name);
-    }
-
-    offset = 0;
-  }
-
-  public void eat_function(String name)
-  {
-    if(get_function_token(name).type == "identifier")
-    {
-      Token identifier = get_function_token(name);
-      consume_function_token(name);
-
-      if(get_function_token(name).type == "oparam")
-      {
-        consume_function_token(name);
-
-        List<String> args = new ArrayList<String>();
-
-        while(get_function_token(name).type != "cparam")
-        {
-          args.add(get_function_token(name).value);
-          consume_function_token(name);
-        }
-
-        consume_function_token(name);
-
-        try
-        {
-          Method method = Interpreter.class.getMethod(identifier.value, String.class);
-          method.invoke(this, args.get(0));
-
-          return;
-        }
-
-        catch(Exception e)
-        {
-          System.out.println(e);
-        }
-      }
-      System.out.println(get_function_token(name).type);
-      System.exit(0);
-    }
+    new Functions(functions.get(name), this);
   }
 }
