@@ -7,12 +7,28 @@ public class Functions
   public int pos;
   public Token current_token;
   public Interpreter interpreter;
+  public List<String> args;
+  public Map<String, String> local_variables = new HashMap<String, String>();
+  public String name;
 
-  public Functions(List<Token> tokens, Interpreter interpreter)
+  public Functions(List<Token> tokens, List<String> args, Interpreter interpreter, String name)
   {
     this.tokens = tokens;
+    this.args = args;
     this.interpreter = interpreter;
+    this.name = name;
+    link_local_variables();
     call();
+  }
+
+  public void link_local_variables()
+  {
+    int iota = 0;
+    for(String arg: args)
+    {
+      local_variables.put(interpreter.function_parameters.get(name).get(iota), arg);
+      iota++;
+    }
   }
 
   public void consume_token()
@@ -46,7 +62,21 @@ public class Functions
 
         while(current_token.type != "cparam")
         {
-          args.add(current_token.value);
+          if(current_token.type.equals("identifier"))
+          {
+            if(!local_variables.containsKey(current_token.value))
+            {
+              System.out.println("variavel: \"" + current_token.value + "\" não foi definida >:[");
+              System.exit(1);
+            }
+
+            args.add((String) local_variables.get(current_token.value));
+          }
+
+          else
+          {
+            args.add(current_token.value);
+          }
           consume_token();
         }
 
@@ -55,7 +85,7 @@ public class Functions
 
         if(interpreter.functions.containsKey(identifier.value))
         {
-          interpreter.invoke_function(identifier.value);
+          interpreter.invoke_function(identifier.value, args);
           return;
         }
 

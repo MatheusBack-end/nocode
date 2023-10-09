@@ -1,9 +1,5 @@
-main:
-  emita("hello")
-
-  emita("world")
-
-  main()
+main args numero numero2 hello:
+  emita(hello)
 ;
 
-main()
+main("1" "2" "hello, world")

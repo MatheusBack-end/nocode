@@ -36,6 +36,11 @@ public class Parser
         return new Token("false", "literal_boolean");
       }
 
+      if(identifier.value.equals("args"))
+      {
+        return new Token(identifier.value, "keyword");
+      }
+
       return identifier;
     }
 

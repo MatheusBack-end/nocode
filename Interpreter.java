@@ -7,7 +7,8 @@ public class Interpreter
   Token current_token;
   Map<String, String> variables = new HashMap<String, String>();
   Map<String, List<Token>> functions = new HashMap<String, List<Token>>();
-
+  Map<String, List<String>> function_parameters = new HashMap<String, List<String>>();
+  
   public void emita(String value)
   {
     System.out.println(value);
@@ -117,7 +118,7 @@ public class Interpreter
           {
             if(!variables.containsKey(current_token.value))
             {
-              System.out.println("varival: \"" + current_token.value + "\" não foi definida >:[");
+              System.out.println("variavel: \"" + current_token.value + "\" não foi definida >:[");
               System.exit(1);
             }
             args.add((String) variables.get(current_token.value));
@@ -135,7 +136,7 @@ public class Interpreter
 
         if(functions.containsKey(identifier.value))
         {
-          invoke_function(identifier.value);
+          invoke_function(identifier.value, args);
           return true;
         }
 
@@ -164,6 +165,21 @@ public class Interpreter
         return true;
       }
 
+      if(current_token.value.equals("args"))
+      {
+        consume_token("keyword");
+
+        List<String> parameters = new ArrayList<String>();
+
+        while(!current_token.type.equals("block"))
+        {
+          parameters.add(current_token.value);
+          consume_token("identifier");
+        }
+
+        function_parameters.put(identifier.value, parameters);
+      }
+
       if(current_token.type == "block")
       {
         consume_token("block");
@@ -183,8 +199,8 @@ public class Interpreter
     return false;
   }
 
-  public void invoke_function(String name)
+  public void invoke_function(String name, List<String> args)
   {
-    new Functions(functions.get(name), this);
+    new Functions(functions.get(name), args, this, name);
   }
 }
