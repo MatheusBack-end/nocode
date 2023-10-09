@@ -1,4 +1,4 @@
 # nocode 
 
-### minha primeira linguagem simples de programação, inicilmente desenvolvida em Java 
-### projeto de estudo...
+### minha primeira linguagem simples de programação, inicialmente desenvolvida em Java 
+### projeto para estudo...
