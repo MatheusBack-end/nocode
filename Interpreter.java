@@ -43,7 +43,7 @@ public class Interpreter
       }
     }
 
-    System.out.println("token inesperado");
+    System.out.println("token inesperado " + current_token.type);
   }
 
   public void consume_token()
@@ -61,6 +61,100 @@ public class Interpreter
     return false;
   }
 
+  public String expression()
+  {
+    if(current_token.type.equals("identifier"))
+    {
+      Token identifier = current_token;
+      consume_token("identifier");
+
+      if(current_token.type.equals("oparam"))
+      {
+        consume_token();
+
+        List<String> args = new ArrayList<String>();
+        while(!current_token.type.equals("cparam"))
+        {
+          if(current_token.type.equals("identifier"))
+          {
+            System.out.println(current_token.type);
+            if(!variables.containsKey(current_token.value))
+            {
+              System.out.println("variavel: \"" + current_token.value + "\" não foi definida >:[");
+              System.exit(1);
+            }
+          }
+          
+          else
+          {
+            args.add((String) current_token.value);
+          }
+
+          consume_token();
+        }
+
+        consume_token("cparam");
+
+        if(functions.containsKey(identifier.value))
+        {
+          return invoke_function(identifier.value, args);
+        }
+
+        try
+        {
+          Method method = Interpreter.class.getMethod(identifier.value, String.class);
+          method.invoke(this, args.get(0));
+
+          return "";
+        } 
+
+        catch(Exception e)
+        {
+          System.out.println(e);
+        }
+
+      }
+    }
+
+    if(current_token.type.equals("string"))
+    {
+      Token value = current_token;
+      consume_token("string");
+
+      if(current_token.type.equals("operator"))
+      {
+        if(current_token.value.equals("menor"))
+        {
+          consume_token("operator");
+
+          boolean operation = Integer.valueOf(value.value) < Integer.valueOf(current_token.value);
+
+          consume_token();
+
+          return String.valueOf(operation);
+        }
+
+        if(current_token.value.equals("maior"))
+        {
+          consume_token("operator");
+
+          boolean operation = Integer.valueOf(value.value) > Integer.valueOf(current_token.value);
+
+          consume_token();
+
+          return String.valueOf(operation);
+        }
+      }
+
+      if(current_token.type.equals("identifier"))
+      {
+        return value.value;
+      }
+    }
+
+    return "";
+  }
+
   public boolean eat()
   {
     if(current_token.type == "close_block")
@@ -73,17 +167,11 @@ public class Interpreter
     {
       consume_token("keyword");
 
-      List<Token> expression = new ArrayList<Token>();
-
-      while(current_token.type != "block")
-      {
-        expression.add(current_token);
-        consume_token();
-      }
+      boolean codition = Boolean.parseBoolean(expression());
 
       consume_token("block");
 
-      if(!codition(expression))
+      if(!codition)
       {
         List<Token> if_block = new ArrayList<Token>();
 
@@ -158,10 +246,9 @@ public class Interpreter
       {
         consume_token("equals");
         
-        Token value = current_token;
-        consume_token("string");
+        String value = expression();
 
-        variables.put(identifier.value, value.value);
+        variables.put(identifier.value, value);
         return true;
       }
 
@@ -199,8 +286,9 @@ public class Interpreter
     return false;
   }
 
-  public void invoke_function(String name, List<String> args)
+  public String invoke_function(String name, List<String> args)
   {
-    new Functions(functions.get(name), args, this, name);
+    Functions f = new Functions(functions.get(name), args, this, name);
+    return f.call();
   }
 }

@@ -10,6 +10,7 @@ public class Functions
   public List<String> args;
   public Map<String, String> local_variables = new HashMap<String, String>();
   public String name;
+  String return_value;
 
   public Functions(List<Token> tokens, List<String> args, Interpreter interpreter, String name)
   {
@@ -18,7 +19,6 @@ public class Functions
     this.interpreter = interpreter;
     this.name = name;
     link_local_variables();
-    call();
   }
 
   public void link_local_variables()
@@ -37,18 +37,34 @@ public class Functions
       current_token = tokens.get(++pos);
   }
 
-  public void call()
+  public String call()
   {
     current_token = tokens.get(pos);
 
-    while(pos < tokens.size() -1)
+    while(invoke())
     {
-      invoke();
+
     }
+
+    return return_value;
   }
 
-  public void invoke()
+  public boolean invoke()
   {
+    if(!(pos < tokens.size() - 1))
+    {
+      return false;
+    }
+
+    if((current_token.type.equals("keyword")) && (current_token.value.equals("retonar")))
+    {
+      consume_token();
+      Token value = current_token;
+      return_value = value.value;
+
+      return false;
+    }
+
     if(current_token.type == "identifier")
     {
       Token identifier = current_token;
@@ -86,7 +102,7 @@ public class Functions
         if(interpreter.functions.containsKey(identifier.value))
         {
           interpreter.invoke_function(identifier.value, args);
-          return;
+          return true;
         }
 
         try
@@ -94,7 +110,7 @@ public class Functions
           Method method = Interpreter.class.getMethod(identifier.value, String.class);
           method.invoke(interpreter, args.get(0));
 
-          return;
+          return true;
         }
 
         catch(Exception e)
@@ -104,5 +120,7 @@ public class Functions
       }
       System.exit(0);
     }
+
+    return false;
   }
 }

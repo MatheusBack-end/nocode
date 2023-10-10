@@ -1,5 +1,2 @@
-main args numero numero2 hello:
-  emita(hello)
-;
-
-main("1" "2" "hello, world")
+booleano = "10101110" menor que "2"
+emita(booleano)

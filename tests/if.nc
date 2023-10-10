@@ -1,5 +1,5 @@
-se verdade:
-    emita("é verdade")
+se "0" menor que "1":
+    emita("verdade")
 ;
 
-emita("hoi, vem sempre aqui?")
+emita("foo")

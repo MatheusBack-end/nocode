@@ -41,6 +41,27 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
+      if(identifier.value.equals("retonar"))
+      {
+        return new Token(identifier.value, "keyword");
+      }
+
+      if(identifier.value.equals("menor"))
+      {
+        return new Token(identifier.value, "operator");
+      }
+
+      if(identifier.value.equals("maior"))
+      {
+        return new Token(identifier.value, "operator");
+      }
+
+      // ignore this context token!
+      if(identifier.value.equals("que"))
+      {
+        return get_next_token();
+      }
+
       return identifier;
     }
 
