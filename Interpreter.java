@@ -43,7 +43,7 @@ public class Interpreter
       }
     }
 
-    System.out.println("token inesperado " + current_token.type);
+    System.out.println("token inesperado " + current_token.type + " " + current_token.value);
   }
 
   public void consume_token()
@@ -271,14 +271,25 @@ public class Interpreter
       {
         consume_token("block");
         List<Token> function_block = new ArrayList<Token>();
+        int scopes = 1;
 
-        while(current_token.type != "close_block")
+        while(scopes != 0)
         {
+          if(current_token.type.equals("block"))
+          {
+            scopes++;
+          }
+
+          if(current_token.type.equals("close_block"))
+          {
+            scopes--;
+          }
+
           function_block.add(current_token);
+
           consume_token();
         }
 
-        consume_token("close_block");
         functions.put(identifier.value, function_block);
       }
     }

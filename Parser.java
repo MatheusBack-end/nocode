@@ -41,7 +41,7 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
-      if(identifier.value.equals("retonar"))
+      if(identifier.value.equals("retornar"))
       {
         return new Token(identifier.value, "keyword");
       }
@@ -100,6 +100,24 @@ public class Parser
       return new Token("=", "equals");
     }
 
+    if(letter == "+".charAt(0))
+    {
+      pos++;
+      return new Token("+", "sum");
+    }
+
+    if(letter == "-".charAt(0))
+    {
+      pos++;
+      return new Token("-", "sub");
+    }
+
+    if(letter == "<".charAt(0))
+    {
+      consume_comment(letter);
+      return get_next_token();
+    }
+
     Token token = new Token(Character.toString(letter), "letter");
 
     if(pos < text.length() -2)
@@ -141,6 +159,18 @@ public class Parser
 
     pos++;
     return new Token(string, "string");
+  }
+
+  public void consume_comment(char letter)
+  {
+    letter = consume_letter();
+
+    while((letter != "\n".charAt(0)) && (pos < text.length() -2))
+    {
+      letter = consume_letter();
+    }
+
+    consume_letter();
   }
 
   public Token consume_identifier(char letter)
