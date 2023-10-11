@@ -5,7 +5,13 @@ class Main
 {
   public static void main(String[] args)
   {
-    String file_data = read_file(args[1]);
+    if(args.length < 1)
+    {
+      System.out.println("\u001B[31merro:\u001B[0m éra esperado argumento <ARQUIVO>");
+      System.exit(1);
+    }
+
+    String file_data = read_file(args[0]);
     new Interpreter(new Parser(file_data));
   }
 

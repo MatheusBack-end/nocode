@@ -1,1 +1,6 @@
-emita("ola, mundo")
+foo:
+  retornar "hello, world"
+  f = ""
+;
+
+emita(foo())

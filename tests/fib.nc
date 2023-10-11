@@ -6,5 +6,4 @@ fib args n:
   retornar fib(n - "1") + fib(n - "2")
 ;
 
-f = fib("20")
-emita(f)
+emita(fib("20"))

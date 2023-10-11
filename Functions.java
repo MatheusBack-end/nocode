@@ -1,10 +1,8 @@
 import java.util.*;
 import java.lang.reflect.*;
 
-public class Functions
+public class Functions extends InterpreterUtils
 {
-  public List<Token> tokens;
-  public int pos;
   public Token current_token;
   public Interpreter interpreter;
   public List<String> args;
@@ -14,9 +12,9 @@ public class Functions
 
   public Functions(List<Token> tokens, List<String> args, Interpreter interpreter, String name)
   {
-    this.tokens = tokens;
+    super(tokens);
     this.args = args;
-    this.interpreter = interpreter;
+    super.interpreter = interpreter;
     this.name = name;
     link_local_variables();
   }
@@ -31,11 +29,6 @@ public class Functions
     }
   }
 
-  public void consume_token()
-  {
-    if(pos < tokens.size() -1)
-      current_token = tokens.get(++pos);
-  }
 
   public String call()
   {
@@ -47,146 +40,6 @@ public class Functions
     }
 
     return return_value;
-  }
-
-  public String expression()
-  {
-    if(current_token.type.equals("identifier"))
-    {
-      Token identifier = current_token;
-      consume_token();
-
-      if(current_token.type.equals("oparam"))
-      {
-        consume_token();
-
-        List<String> args = new ArrayList<String>();
-        while(!current_token.type.equals("cparam"))
-        {
-          args.add((String) expression());
-          /*if(current_token.type.equals("identifier"))
-          {
-            System.out.println(current_token.type);
-            if(!local_variables.containsKey(current_token.value))
-            {
-              System.out.println("variavel: \"" + current_token.value + "\" não foi definida >:(");
-              System.exit(1);
-            }
-          }
-          
-          else
-          {
-            args.add((String) current_token.value);
-          }
-
-          consume_token();*/
-        }
-
-        consume_token();
-
-        if(current_token.type.equals("sum"))
-        {
-          consume_token();
-          String value_1 = interpreter.invoke_function(identifier.value, args);
-          String value_2 = expression();
-          
-          return String.valueOf(Integer.valueOf(value_1) + Integer.valueOf(value_2));
-        }
-
-        if(interpreter.functions.containsKey(identifier.value))
-        {
-          return interpreter.invoke_function(identifier.value, args);
-        }
-
-        try
-        {
-          Method method = Interpreter.class.getMethod(identifier.value, String.class);
-          method.invoke(interpreter, args.get(0));
-
-          return "";
-        } 
-
-        catch(Exception e)
-        {
-          System.out.println(e);
-        }
-
-      }
-
-      if(current_token.type.equals("sub"))
-      {
-        consume_token();
-
-        if(current_token.type.equals("string"))
-        {
-          int result = Integer.valueOf(local_variables.get(identifier.value)) - Integer.valueOf(current_token.value);
-          consume_token();
-
-          return String.valueOf(result);
-        }
-      }
-
-      if(current_token.type.equals("operator"))
-      {
-        if(current_token.value.equals("menor"))
-        {
-          consume_token();
-          boolean operation = Integer.valueOf(local_variables.get(identifier.value)) < Integer.valueOf(current_token.value);
-          consume_token();
-
-          return String.valueOf(operation);
-        }
-      }
-
-      if(!local_variables.containsKey(identifier.value))
-      {
-        System.out.println("variavel: \"" + identifier.value + "\" não foi definida >:/");
-        System.exit(1);
-      }
-
-      else
-      {
-        return local_variables.get(identifier.value);
-      }
-    }
-
-    if(current_token.type.equals("string"))
-    {
-      Token value = current_token;
-      consume_token();
-
-      if(current_token.type.equals("operator"))
-      {
-        if(current_token.value.equals("menor"))
-        {
-          consume_token();
-
-          boolean operation = Integer.valueOf(value.value) < Integer.valueOf(current_token.value);
-
-          consume_token();
-
-          return String.valueOf(operation);
-        }
-
-        if(current_token.value.equals("maior"))
-        {
-          consume_token();
-
-          boolean operation = Integer.valueOf(value.value) > Integer.valueOf(current_token.value);
-
-          consume_token();
-
-          return String.valueOf(operation);
-        }
-      }
-
-      if((current_token.type.equals("identifier")) || (current_token.type.equals("cparam")))
-      {
-        return value.value;
-      }
-    }
-
-    return "";
   }
 
   public boolean invoke()
@@ -275,6 +128,17 @@ public class Functions
           System.out.println(e);
         }
       }
+
+      if(current_token.type == "equals")
+      {
+        consume_token();
+        
+        String value = expression();
+
+        local_variables.put(identifier.value, value);
+        return true;
+      }
+
       System.exit(0);
     }
 
