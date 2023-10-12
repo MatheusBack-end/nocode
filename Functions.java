@@ -3,7 +3,6 @@ import java.lang.reflect.*;
 
 public class Functions extends InterpreterUtils
 {
-  public Token current_token;
   public Interpreter interpreter;
   public List<String> args;
   public Map<String, String> local_variables = new HashMap<String, String>();
@@ -15,6 +14,7 @@ public class Functions extends InterpreterUtils
     super(tokens);
     this.args = args;
     super.interpreter = interpreter;
+    this.interpreter = interpreter;
     this.name = name;
     link_local_variables();
   }
@@ -24,7 +24,7 @@ public class Functions extends InterpreterUtils
     int iota = 0;
     for(String arg: args)
     {
-      local_variables.put(interpreter.function_parameters.get(name).get(iota), arg);
+      super.variables.put(interpreter.function_parameters.get(name).get(iota), arg);
       iota++;
     }
   }
@@ -69,7 +69,6 @@ public class Functions extends InterpreterUtils
 
       boolean codition = Boolean.parseBoolean(expression());
 
-      //System.out.println(codition);
       consume_token();
 
       if(!codition)
