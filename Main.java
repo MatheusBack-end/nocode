@@ -25,8 +25,10 @@ class Main
       Scanner reader = new Scanner(file);
       while(reader.hasNextLine())
       {
-        data += reader.nextLine();
+        data += reader.nextLine() + "\n";
       }
+
+      data = data.substring(0, data.length() - 1);
     }
 
     catch(Exception e)

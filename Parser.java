@@ -56,6 +56,11 @@ public class Parser
         return new Token(identifier.value, "operator");
       }
 
+      if(identifier.value.equals("fim"))
+      {
+        return new Token(";", "close_block");
+      }
+
       // ignore this context token!
       if(identifier.value.equals("que"))
       {
@@ -86,12 +91,6 @@ public class Parser
     {
       pos++;
       return new Token(":", "block");
-    }
-
-    if(letter == ";".charAt(0))
-    {
-      pos++;
-      return new Token(";", "close_block");
     }
     
     if(letter == "=".charAt(0))
@@ -133,7 +132,7 @@ public class Parser
 
   public char remove_whitespaces(char letter)
   {
-    while(letter == " ".charAt(0))
+    while((letter == " ".charAt(0)) || (letter == "\n".charAt(0)))
     {
       letter = consume_letter();
     }
@@ -191,7 +190,7 @@ public class Parser
   }
 
   public boolean isAlphanumeric(char letter)
-  { 
+  {
     if(!Character.isLetterOrDigit(letter))
       return false;
 

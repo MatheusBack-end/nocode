@@ -175,7 +175,6 @@ public class Interpreter extends InterpreterUtils
           }
 
           function_block.add(current_token);
-
           consume_token();
         }
 

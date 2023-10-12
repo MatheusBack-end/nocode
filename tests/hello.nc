@@ -1,6 +1,5 @@
-foo:
-  retornar "hello, world"
-  f = ""
-;
+main:
+  emita("hello, world")
+fim
 
-emita(foo())
+emita("hello, world")
