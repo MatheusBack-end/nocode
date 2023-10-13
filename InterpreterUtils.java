@@ -9,18 +9,47 @@ public class InterpreterUtils extends Consumer
 
   public InterpreterUtils(Parser parser)
   {
-    //this.interpreter = interpreter;
     super(parser);
   }
 
   public InterpreterUtils(List<Token> tokens)
   {
-    //this.interpreter = interpreter;
     super(tokens);
+  }
+
+  public void expecteds(String type)
+  {
+    //
+  }
+
+  public String create_instance()
+  {
+    consume_token("new");
+
+    Token identifier = current_token;
+    consume_token("identifier");
+
+    consume_token("oparam");
+
+    List<String> args = new ArrayList<String>();
+
+    while(!current_token.type.equals("cparam"))
+    {
+      args.add(expression());
+    }
+
+    consume_token("cparam");
+
+    return "sua instancia: " + identifier;
   }
 
   public String expression()
   {
+    if(current_token.type.equals("new"))
+    {
+      return create_instance();
+    }
+
     if(current_token.type.equals("identifier"))
     {
       Token identifier = current_token;

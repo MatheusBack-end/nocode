@@ -19,6 +19,11 @@ public class Interpreter extends InterpreterUtils
     System.out.println(full_value);
   }
 
+  public void print(String... value)
+  {
+    System.out.println(value[0]);
+  }
+
   public void emita(String value)
   {
     System.out.println(value);
@@ -90,6 +95,75 @@ public class Interpreter extends InterpreterUtils
     {
       Token identifier = current_token;
       consume_token("identifier");
+
+      List<String> method_loc = new ArrayList<String>();
+/**
+ *
+ * Interpreter.get_stdout().emita()
+ *
+ */
+      if(current_token.type == "dot")
+      {
+        consume_token("dot");
+
+        Class source_class = null;
+
+        try
+        {
+          source_class = Class.forName(identifier.value);
+        }
+
+        catch(Exception e)
+        {
+          System.out.println(e);
+        }
+
+        while(current_token.type.equals("identifier"))
+        {
+          Token name = current_token;
+          consume_token("identifier");
+
+          if(current_token.type.equals("dot"))
+          {
+            consume_token("dot");
+            continue;
+          }
+
+          if(current_token.type.equals("oparam"))
+          {
+            consume_token("oparam");
+            List<String> args = new ArrayList<String>();
+
+            while(current_token.type != "cparam")
+            {
+              args.add(expression());
+            }
+
+            consume_token("cparam");
+
+            try
+            {
+              Method  method = source_class.getMethod(name.value, String.class);
+              method.invoke(this, args.get(0));
+            }
+
+            catch(Exception e)
+            {
+              System.out.println(e);
+            }
+
+            if(!current_token.type.equals("dot"))
+            {
+              break;
+            }
+          }
+        }
+
+        for(String loc: method_loc)
+        {
+          System.out.println(loc);
+        }
+      }
 
       if(current_token.type == "oparam")
       {

@@ -1,10 +1,4 @@
-fib args n:
-  se n menor que "2":
-    retornar n
-  ;
+// Interpreter.emita("hello, world")
 
-  retornar fib(n - "1") + fib(n - "2")
-;
-
-f = fib("20")
-emita(f)
+// Test classe = new Test();
+classe = criar Test()

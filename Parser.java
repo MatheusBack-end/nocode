@@ -26,6 +26,11 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
+      if(identifier.value.equals("criar"))
+      {
+        return new Token(identifier.value, "new");
+      }
+
       if(identifier.value.equals("verdade"))
       {
         return new Token("true", "literal_boolean");
@@ -111,10 +116,19 @@ public class Parser
       return new Token("-", "sub");
     }
 
-    if(letter == "<".charAt(0))
+    if(letter == "/".charAt(0))
     {
-      consume_comment(letter);
-      return get_next_token();
+      if(consume_letter() == "/".charAt(0));
+      {  
+        consume_comment(letter);
+        return get_next_token();
+      }
+    }
+
+    if(letter == ".".charAt(0))
+    {
+      pos++;
+      return new Token(".", "dot");
     }
 
     Token token = new Token(Character.toString(letter), "letter");
