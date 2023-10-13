@@ -17,17 +17,18 @@ public class InterpreterUtils extends Consumer
     super(tokens);
   }
 
-  public void expecteds(String type)
+  public boolean expected(String token_type)
   {
-    //
+    if(!current_token.type.equals(token_type))
+      return false;
+
+    consume_token(token_type);
+    return true;
   }
 
   public String create_instance()
   {
-    consume_token("new");
-
-    Token identifier = current_token;
-    consume_token("identifier");
+    Token java_class_name = consume_token("identifier");
 
     consume_token("oparam");
 
@@ -40,12 +41,22 @@ public class InterpreterUtils extends Consumer
 
     consume_token("cparam");
 
-    return "sua instancia: " + identifier;
+    try
+    {
+      Object class_instance = Class.forName(java_class_name.value).newInstance();      
+    }
+
+    catch(Exception e)
+    {
+      System.out.println(e);
+    }
+
+    return "sua instancia: " + java_class_name.value;
   }
 
   public String expression()
   {
-    if(current_token.type.equals("new"))
+    if(expected("new"))
     {
       return create_instance();
     }

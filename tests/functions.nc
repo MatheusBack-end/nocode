@@ -1,4 +1,4 @@
-// Interpreter.emita("hello, world")
+// comment here
+emita("hello, world") 
 
-// Test classe = new Test();
-classe = criar Test()
+emita("hi may friend")

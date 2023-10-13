@@ -10,12 +10,18 @@ public class Parser
 
   public Token get_next_token()
   {
-    if(pos > text.length() -1)
+
+    if(pos == text.length())
     {
       return new Token("", "eof");
     }
 
     char letter = remove_whitespaces(text.charAt(pos));
+
+    if(pos == text.length() -1)
+    {
+      return new Token("", "eof");
+    }
 
     if(isAlphanumeric(letter))
     {
@@ -88,7 +94,7 @@ public class Parser
 
     if(letter == ")".charAt(0))
     {
-      pos++;
+      ++pos;
       return new Token(")", "cparam");
     }
 
@@ -131,12 +137,10 @@ public class Parser
       return new Token(".", "dot");
     }
 
-    Token token = new Token(Character.toString(letter), "letter");
-
     if(pos < text.length() -2)
       consume_letter();
 
-    return token;
+    return get_next_token();
   }
 
   public char consume_letter()
@@ -148,6 +152,11 @@ public class Parser
   {
     while((letter == " ".charAt(0)) || (letter == "\n".charAt(0)))
     {
+      if(pos == text.length() -1)
+      {
+        break;
+      }
+
       letter = consume_letter();
     }
 

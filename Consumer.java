@@ -19,9 +19,22 @@ public class Consumer
     this.is_list = true;
   }
 
-  public void consume_token(String... token_type)
+  public Token consume_token(String... token_types)
   {
-    consume_token();
+    Token previous_token = current_token;
+
+    for(String type: token_types)
+    {
+      if(current_token.type.equals(type))
+      {
+        consume_token();
+        return previous_token;
+      }
+    }
+    
+    System.out.println("\u001B[31merro:\u001B[0m esperado " + token_types[0] + " recebido " + current_token.type);
+    System.exit(1);
+    return null;
   }
 
   public void consume_token()
