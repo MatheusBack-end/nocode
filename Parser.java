@@ -10,7 +10,6 @@ public class Parser
 
   public Token get_next_token()
   {
-
     if(pos == text.length())
     {
       return new Token("", "eof");
@@ -18,7 +17,7 @@ public class Parser
 
     char letter = remove_whitespaces(text.charAt(pos));
 
-    if(pos == text.length() -1)
+    if(pos == text.length())
     {
       return new Token("", "eof");
     }
@@ -154,6 +153,7 @@ public class Parser
     {
       if(pos == text.length() -1)
       {
+        pos++;
         break;
       }
 
