@@ -29,6 +29,24 @@ public class InterpreterUtils extends Consumer
   public String create_instance()
   {
     Token java_class_name = consume_token("identifier");
+    String result = "";
+    result += java_class_name.value;
+
+    if(current_token.type.equals("dot"))
+    {
+      List<Token> trace = new ArrayList<Token>();
+
+      while(!current_token.type.equals("oparam"))
+      {
+        trace.add(current_token);
+        consume_token();
+      }
+  
+      for(Token t: trace)
+      {
+        result += t.value;
+      }
+    }
 
     consume_token("oparam");
 
@@ -43,7 +61,8 @@ public class InterpreterUtils extends Consumer
 
     try
     {
-      Object class_instance = Class.forName(java_class_name.value).newInstance();      
+      System.out.println(result);
+      Object class_instance = Class.forName(result).newInstance();      
     }
 
     catch(Exception e)

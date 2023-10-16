@@ -10,12 +10,7 @@ public class Parser
 
   public Token get_next_token()
   {
-    if(pos == text.length())
-    {
-      return new Token("", "eof");
-    }
-
-    char letter = remove_whitespaces(text.charAt(pos));
+    char letter = remove_whitespaces();
 
     if(pos == text.length())
     {
@@ -130,7 +125,7 @@ public class Parser
       }
     }
 
-    if(letter == ".".charAt(0))
+    if(letter == '.')
     {
       pos++;
       return new Token(".", "dot");
@@ -147,8 +142,13 @@ public class Parser
     return text.charAt(++pos);
   }
 
-  public char remove_whitespaces(char letter)
+  public char remove_whitespaces()
   {
+    if(pos == text.length())
+      return ' ';
+
+    char letter = text.charAt(pos);
+
     while((letter == " ".charAt(0)) || (letter == "\n".charAt(0)))
     {
       if(pos == text.length() -1)

@@ -9,7 +9,7 @@ public class Interpreter extends InterpreterUtils
   
   public void emita(String... values)
   {
-    String full_value = "";
+    String full_value = new java.lang.String("");
 
     for(String value: values)
     {
