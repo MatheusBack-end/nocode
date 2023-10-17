@@ -80,6 +80,12 @@ public class Parser
       return consume_string(letter);
     }
 
+    if(letter == ',')
+    {
+      pos++;
+      return new Token(",", "operator");
+    }
+
     if(letter == "(".charAt(0))
     {
       pos++;

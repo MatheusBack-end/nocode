@@ -1,10 +1,11 @@
 import java.util.*;
 import java.lang.reflect.*;
 
+@SuppressWarnings("deprecation")
 public class InterpreterUtils extends Consumer
 {
 
-  public Map<String, String> variables = new HashMap<String, String>();
+  public Map<String, Object> variables = new HashMap<String, Object>();
   public Interpreter interpreter;
 
   public InterpreterUtils(Parser parser)
@@ -26,7 +27,7 @@ public class InterpreterUtils extends Consumer
     return true;
   }
 
-  public String create_instance()
+  public Object create_instance()
   {
     Token java_class_name = consume_token("identifier");
     String result = "";
@@ -54,15 +55,25 @@ public class InterpreterUtils extends Consumer
 
     while(!current_token.type.equals("cparam"))
     {
-      args.add(expression());
+      args.add((String) expression());
     }
 
     consume_token("cparam");
 
+    Object class_instance = null;
+
     try
     {
-      System.out.println(result);
-      Object class_instance = Class.forName(result).newInstance();      
+      Class[] types = new Class[args.size()];
+      String[] args_array = new String[args.size()];
+
+      for(int i = 0; i < types.length; i++)
+      {
+        types[i] = args.get(i).getClass();
+        args_array[i] = args.get(i);
+      }
+
+      class_instance = Class.forName(result).getConstructor(types).newInstance(args_array);      
     }
 
     catch(Exception e)
@@ -70,10 +81,10 @@ public class InterpreterUtils extends Consumer
       System.out.println(e);
     }
 
-    return "sua instancia: " + java_class_name.value;
+    return class_instance;
   }
 
-  public String expression()
+  public Object expression()
   {
     if(expected("new"))
     {
@@ -101,7 +112,7 @@ public class InterpreterUtils extends Consumer
         {
           consume_token();
           String value_1 = interpreter.invoke_function(identifier.value, args);
-          String value_2 = expression();
+          String value_2 = (String) expression();
           
           return String.valueOf(Integer.valueOf(value_1) + Integer.valueOf(value_2));
         }
@@ -132,7 +143,7 @@ public class InterpreterUtils extends Consumer
 
         if(current_token.type.equals("string"))
         {
-          int result = Integer.valueOf(variables.get(identifier.value)) - Integer.valueOf(current_token.value);
+          int result = Integer.valueOf((String) variables.get(identifier.value)) - Integer.valueOf(current_token.value);
           consume_token();
 
           return String.valueOf(result);
@@ -145,7 +156,7 @@ public class InterpreterUtils extends Consumer
 
         if(current_token.type.equals("string"))
         {
-          int result = Integer.valueOf(variables.get(identifier.value)) + Integer.valueOf(current_token.value);
+          int result = Integer.valueOf((String) variables.get(identifier.value)) + Integer.valueOf(current_token.value);
           consume_token();
 
           return String.valueOf(result);
@@ -157,7 +168,7 @@ public class InterpreterUtils extends Consumer
         if(current_token.value.equals("menor"))
         {
           consume_token();
-          boolean operation = Integer.valueOf(variables.get(identifier.value)) < Integer.valueOf(current_token.value);
+          boolean operation = Integer.valueOf((String) variables.get(identifier.value)) < Integer.valueOf(current_token.value);
           consume_token();
 
           return String.valueOf(operation);

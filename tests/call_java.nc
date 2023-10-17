@@ -1,2 +1,1 @@
-string = criar java.lang.String("hello")
-main = criar Main(string)
+emita(criar java.lang.String("string"))

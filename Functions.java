@@ -57,7 +57,7 @@ public class Functions extends InterpreterUtils
     if((current_token.type.equals("keyword")) && (current_token.value.equals("retornar")))
     {
       consume_token();
-      String value = expression();
+      String value = (String) expression();
 
       return_value = value;
       return false;
@@ -67,7 +67,7 @@ public class Functions extends InterpreterUtils
     {
       consume_token();
 
-      boolean codition = Boolean.parseBoolean(expression());
+      boolean codition = Boolean.parseBoolean((String) expression());
 
       consume_token();
 
@@ -102,7 +102,7 @@ public class Functions extends InterpreterUtils
 
         while(current_token.type != "cparam")
         {
-          args.add(expression());
+          args.add((String) expression());
         }
 
         consume_token();
@@ -132,7 +132,7 @@ public class Functions extends InterpreterUtils
       {
         consume_token();
         
-        String value = expression();
+        String value = (String) expression();
 
         local_variables.put(identifier.value, value);
         return true;

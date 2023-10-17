@@ -2,6 +2,7 @@ import java.util.*;
 import java.lang.reflect.*;
 import java.lang.Class;
 
+@SuppressWarnings("deprecation")
 public class Interpreter extends InterpreterUtils
 {
   Map<String, List<Token>> functions = new HashMap<String, List<Token>>();
@@ -57,8 +58,15 @@ public class Interpreter extends InterpreterUtils
     return false;
   }
 
+  @SuppressWarnings("deprecation")
   public boolean eat()
   {
+    if(expected("new"))
+    {
+      create_instance();
+      return true;
+    }
+
     if(current_token.type == "close_block")
     {
       consume_token();
@@ -69,7 +77,7 @@ public class Interpreter extends InterpreterUtils
     {
       consume_token("keyword");
 
-      boolean codition = Boolean.parseBoolean(expression());
+      boolean codition = Boolean.parseBoolean((String) expression());
 
       consume_token("block");
 
@@ -136,13 +144,14 @@ public class Interpreter extends InterpreterUtils
 
             while(current_token.type != "cparam")
             {
-              args.add(expression());
+              args.add((String) expression());
             }
 
             consume_token("cparam");
 
             try
             {
+              @SuppressWarnings("deprecation")
               Method  method = source_class.getMethod(name.value, String.class);
               method.invoke(this, args.get(0));
             }
@@ -173,7 +182,7 @@ public class Interpreter extends InterpreterUtils
 
         while(current_token.type != "cparam")
         {
-          args.add(expression());
+          args.add((String) expression());
         }
 
         consume_token("cparam");
@@ -209,7 +218,7 @@ public class Interpreter extends InterpreterUtils
       {
         consume_token("equals");
         
-        String value = expression();
+        String value = (String) expression();
 
         variables.put(identifier.value, value);
         return true;
