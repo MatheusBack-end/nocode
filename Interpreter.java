@@ -105,11 +105,7 @@ public class Interpreter extends InterpreterUtils
       consume_token("identifier");
 
       List<String> method_loc = new ArrayList<String>();
-/**
- *
- * Interpreter.get_stdout().emita()
- *
- */
+
       if(current_token.type == "dot")
       {
         consume_token("dot");
