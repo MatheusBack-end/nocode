@@ -73,7 +73,9 @@ public class InterpreterUtils extends Consumer
         args_array[i] = args.get(i);
       }
 
-      class_instance = Class.forName(result).getConstructor(types).newInstance(args_array);      
+      System.out.println(result);
+
+      class_instance = Class.forName(result).getConstructor(types).newInstance((Object[]) args_array);      
     }
 
     catch(Exception e)
@@ -221,6 +223,8 @@ public class InterpreterUtils extends Consumer
       {
         return value.value;
       }
+
+      return value.value;
     }
 
     return "";

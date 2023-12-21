@@ -214,7 +214,7 @@ public class Interpreter extends InterpreterUtils
       {
         consume_token("equals");
         
-        String value = (String) expression();
+        Object value = expression();
 
         variables.put(identifier.value, value);
         return true;

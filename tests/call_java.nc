@@ -1,1 +1,7 @@
-emita(criar java.lang.String("string"))
+foo:
+  retornar "test"
+fim
+
+loo = foo()
+
+emita(loo)
