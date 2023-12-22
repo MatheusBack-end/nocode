@@ -73,8 +73,6 @@ public class InterpreterUtils extends Consumer
         args_array[i] = args.get(i);
       }
 
-      System.out.println(result);
-
       class_instance = Class.forName(result).getConstructor(types).newInstance((Object[]) args_array);      
     }
 
@@ -91,6 +89,14 @@ public class InterpreterUtils extends Consumer
     if(expected("new"))
     {
       return create_instance();
+    }
+
+    if(current_token.type.equals("number"))
+    {
+      int number = Integer.parseInt(current_token.value);
+      consume_token("number");
+
+      return (int) number;
     }
 
     if(current_token.type.equals("identifier"))

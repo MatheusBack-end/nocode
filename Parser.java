@@ -75,6 +75,11 @@ public class Parser
       return identifier;
     }
 
+    if(is_number(letter))
+    {
+      return consume_number(letter);
+    }
+
     if(letter == "\"".charAt(0))
     {
       return consume_string(letter);
@@ -218,11 +223,31 @@ public class Parser
     return new Token(identifier, "identifier");
   }
 
+  public Token consume_number(char letter)
+  {
+    String number = "";
+
+    while(is_number(letter))
+    {
+      number += Character.toString(letter);
+        
+      if(pos > text.length() -2)
+        break;
+
+      letter = consume_letter();
+    }
+
+    return new Token(number, "number");
+  }
+
+
   public boolean isAlphanumeric(char letter)
   {
-    if(!Character.isLetterOrDigit(letter))
-      return false;
+    return Character.isLetter(letter);
+  }
 
-    return true;
+  public boolean is_number(char letter)
+  {
+    return Character.isDigit(letter);
   }
 }

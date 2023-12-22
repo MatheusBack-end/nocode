@@ -108,9 +108,89 @@ public class Interpreter extends InterpreterUtils
 
       if(current_token.type == "dot")
       {
-        consume_token("dot");
+        Object invoke_value = null;
 
         Class source_class = null;
+
+        while(true)
+        {
+          consume_token("dot");
+          String method_name = current_token.value;
+          consume_token("identifier");
+
+          List<Object> args = null;
+          if(current_token.type.equals("oparam"))
+          {
+            consume_token("oparam");
+            args = new ArrayList<Object>();
+    
+            while(current_token.type != "cparam")
+            {
+              args.add(expression());
+            }
+    
+            consume_token("cparam");
+          }
+
+          Class[] arg_types = new Class[args.size()];
+              
+          for(int i = 0; i < args.size(); i++)
+          {
+            if(args.get(i) == null)
+              continue;
+                
+            Class object_class = args.get(i).getClass();
+
+            if(object_class.getName().equals("java.lang.Integer"))
+              object_class = int.class;
+
+            arg_types[i] = object_class;
+          }
+
+          if(invoke_value == null)
+          {
+            if(variables.containsKey(identifier.value))
+            {
+              try
+              {
+                Method method = variables.get(identifier.value).getClass().getMethod(method_name, arg_types);
+                invoke_value = method.invoke(variables.get(identifier.value), (Object[]) args.toArray(new Object[0]));
+              }
+
+              catch(Exception e)
+              {
+                System.out.println(e);
+              }
+
+              if(current_token.type.equals("dot"))
+                continue;
+
+              return true;
+            }
+          }
+
+          // seconds or others calls
+          //
+   
+          try
+          {
+            Method method = invoke_value.getClass().getMethod(method_name, arg_types);
+            invoke_value = method.invoke(invoke_value, (Object[]) args.toArray(new Object[0]));
+          }
+
+          catch(Exception e)
+          {
+            System.out.println(e);
+          }
+
+          if(!current_token.type.equals("dot"))
+          {
+            break;
+          }
+        }
+
+        if(invoke_value != null)
+          return true;
 
         try
         {

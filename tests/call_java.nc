@@ -1,7 +1,3 @@
-foo:
-  retornar "test"
-fim
+foo = criar java.lang.String("lorem ipsum")
 
-loo = foo()
-
-emita(loo)
+foo.charAt(0).hashCode()
