@@ -1,3 +1,7 @@
-foo = criar java.lang.String("lorem ipsum")
+socket = criar java.net.DatagramSocket()
+ip = java.net.InetAddress.getByName("127.0.0.1")
+message = "test"
 
-foo.charAt(0).hashCode()
+packet = criar java.net.DatagramPacket(message.getBytes() 4 ip 19132)
+socket.send(packet)
+socket.close()

@@ -20,9 +20,9 @@ public class Interpreter extends InterpreterUtils
     System.out.println(full_value);
   }
 
-  public void print(String... value)
+  public void print(int value)
   {
-    System.out.println(value[0]);
+    System.out.println(value);
   }
 
   public void emita(String value)
@@ -118,11 +118,10 @@ public class Interpreter extends InterpreterUtils
           String method_name = current_token.value;
           consume_token("identifier");
 
-          List<Object> args = null;
+          List<Object> args = new ArrayList<Object>();
           if(current_token.type.equals("oparam"))
           {
             consume_token("oparam");
-            args = new ArrayList<Object>();
     
             while(current_token.type != "cparam")
             {
@@ -159,7 +158,7 @@ public class Interpreter extends InterpreterUtils
 
               catch(Exception e)
               {
-                System.out.println(e);
+                System.out.println(e + " " + e.getCause());
               }
 
               if(current_token.type.equals("dot"))
@@ -194,7 +193,7 @@ public class Interpreter extends InterpreterUtils
 
         try
         {
-          source_class = Class.forName(identifier.value);
+      source_class = Class.forName(identifier.value);
         }
 
         catch(Exception e)
@@ -216,20 +215,34 @@ public class Interpreter extends InterpreterUtils
           if(current_token.type.equals("oparam"))
           {
             consume_token("oparam");
-            List<String> args = new ArrayList<String>();
+            List<Object> args = new ArrayList<Object>();
 
             while(current_token.type != "cparam")
             {
-              args.add((String) expression());
+              args.add(expression());
             }
 
             consume_token("cparam");
 
+            Class[] arg_types = new Class[args.size()];
+              
+            for(int i = 0; i < args.size(); i++)
+            {
+              if(args.get(i) == null)
+                continue;
+                
+              Class object_class = args.get(i).getClass();
+
+              if(object_class.getName().equals("java.lang.Integer"))
+                object_class = int.class;
+
+              arg_types[i] = object_class;
+            }
+            
             try
             {
-              @SuppressWarnings("deprecation")
-              Method  method = source_class.getMethod(name.value, String.class);
-              method.invoke(this, args.get(0));
+              Method  method = source_class.getMethod(name.value, arg_types);
+              method.invoke(this, (Object[]) args.toArray(new Object[0]));
             }
 
             catch(Exception e)
@@ -254,11 +267,11 @@ public class Interpreter extends InterpreterUtils
       {
         consume_token("oparam");
 
-        List<String> args = new ArrayList<String>();
+        List<Object> args = new ArrayList<Object>();
 
         while(current_token.type != "cparam")
         {
-          args.add((String) expression());
+          args.add(expression());
         }
 
         consume_token("cparam");
@@ -271,15 +284,23 @@ public class Interpreter extends InterpreterUtils
 
         try
         {
-          String arg_array[] = new String[args.size()];
-
+          Class[] arg_types = new Class[args.size()];
+              
           for(int i = 0; i < args.size(); i++)
           {
-            arg_array[i] = args.get(i);
+            if(args.get(i) == null)
+              continue;
+                
+            Class object_class = args.get(i).getClass();
+
+            if(object_class.getName().equals("java.lang.Integer"))
+              object_class = int.class;
+
+            arg_types[i] = object_class;
           }
 
-          Method method = Interpreter.class.getMethod(identifier.value, String[].class);
-          method.invoke(this, (Object) arg_array);
+          Method method = Interpreter.class.getMethod(identifier.value, arg_types);
+          method.invoke(this, (Object[]) args.toArray(new Object[0]));
 
           return true;
         }
@@ -344,7 +365,7 @@ public class Interpreter extends InterpreterUtils
     return false;
   }
 
-  public String invoke_function(String name, List<String> args)
+  public String invoke_function(String name, List<Object> args)
   {
     Functions f = new Functions(functions.get(name), args, this, name);
     return f.call();

@@ -4,12 +4,12 @@ import java.lang.reflect.*;
 public class Functions extends InterpreterUtils
 {
   public Interpreter interpreter;
-  public List<String> args;
-  public Map<String, String> local_variables = new HashMap<String, String>();
+  public List<Object> args;
+  public Map<String, Object> local_variables = new HashMap<String, Object>();
   public String name;
   String return_value;
 
-  public Functions(List<Token> tokens, List<String> args, Interpreter interpreter, String name)
+  public Functions(List<Token> tokens, List<Object> args, Interpreter interpreter, String name)
   {
     super(tokens);
     this.args = args;
@@ -22,7 +22,7 @@ public class Functions extends InterpreterUtils
   public void link_local_variables()
   {
     int iota = 0;
-    for(String arg: args)
+    for(Object arg: args)
     {
       super.variables.put(interpreter.function_parameters.get(name).get(iota), arg);
       iota++;
@@ -98,11 +98,11 @@ public class Functions extends InterpreterUtils
       {
         consume_token();
 
-        List<String> args = new ArrayList<String>();
+        List<Object> args = new ArrayList<Object>();
 
         while(current_token.type != "cparam")
         {
-          args.add((String) expression());
+          args.add(expression());
         }
 
         consume_token();
