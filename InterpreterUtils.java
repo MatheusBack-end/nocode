@@ -6,6 +6,7 @@ public class InterpreterUtils extends Consumer
 {
 
   public Map<String, Object> variables = new HashMap<String, Object>();
+  public List<String> package_names = new ArrayList<String>();
   public Interpreter interpreter;
 
   public InterpreterUtils(Parser parser)
@@ -25,6 +26,59 @@ public class InterpreterUtils extends Consumer
 
     consume_token(token_type);
     return true;
+  }
+
+  public Object in_package(String class_name, Class[] types, List<Object> args)
+  {
+    Object class_instance = null;
+
+    for(String package_name: package_names)
+    {
+      try
+      {
+        class_instance = Class.forName(package_name + "." + class_name).getConstructor(types).newInstance((Object[]) args.toArray(new Object[0])); 
+      }
+
+      catch(Exception e)
+      {
+        // ignore
+      }
+
+      if(class_instance != null)
+      {
+        return class_instance;
+      }
+    }
+
+    return null;
+  }
+  
+  public Object static_in_package(String class_name, String method_name, Class[] types, List<Object> args)
+  {
+    Object invoke_result = null;
+
+    for(String package_name: package_names)
+    {
+      try
+      {
+        Class class_of_static = Class.forName(package_name + "." + class_name);
+        Method method = class_of_static.getMethod(method_name, types);
+
+        invoke_result = method.invoke(null, args.toArray(new Object[0])); 
+      }
+
+      catch(Exception e)
+      {
+        // ignore
+      }
+
+      if(invoke_result != null)
+      {
+        return invoke_result;
+      }
+    }
+
+    return null;
   }
 
   public Object create_instance()
@@ -61,10 +115,10 @@ public class InterpreterUtils extends Consumer
     consume_token("cparam");
 
     Object class_instance = null;
+    Class[] types = new Class[args.size()];
 
     try
     {
-      Class[] types = new Class[args.size()];
       Object[] args_array = new Object[args.size()];
 
       for(int i = 0; i < types.length; i++)
@@ -100,7 +154,18 @@ public class InterpreterUtils extends Consumer
 
     catch(Exception e)
     {
-      System.out.println(e + " " + e.getCause());
+      //System.out.println(e + " " + e.getCause());
+    }
+
+    if(class_instance == null)
+    {
+      class_instance = in_package(result, types, args);
+    }
+
+    if(class_instance == null)
+    {
+      System.out.println("classe " + result + " não encontrada!");
+      System.exit(1);
     }
 
     return class_instance;
@@ -269,18 +334,34 @@ public class InterpreterUtils extends Consumer
             arg_types[i] = arg_type;
           }
 
+          Object invoke_result = null;
+
           try
           {
             Class class_of_static = Class.forName(origin_class);
             Method method = class_of_static.getMethod(method_name, arg_types);
 
-            return method.invoke(null, args.toArray(new Object[0]));
+            invoke_result = method.invoke(null, args.toArray(new Object[0]));
           }
 
           catch(Exception e)
           {
-              System.out.println(e + " " + e.getCause());
+            // ignore
+            //System.out.println(e + " " + e.getCause());
           }
+
+          if(invoke_result == null)
+          {
+            invoke_result = static_in_package(origin_class, method_name, arg_types, args);
+          }
+
+          if(invoke_result == null)
+          {
+            System.out.println("função estatica " + origin_class + "->" + method_name + " não encontrada!");
+            System.exit(0);
+          }
+
+          return invoke_result;
         }
 
         while(true)

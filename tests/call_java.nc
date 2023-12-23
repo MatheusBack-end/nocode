@@ -1,7 +1,9 @@
-socket = criar java.net.DatagramSocket()
-ip = java.net.InetAddress.getByName("127.0.0.1")
-message = "test"
+pacote "java.net"
 
-packet = criar java.net.DatagramPacket(message.getBytes() 4 ip 19132)
+socket = criar DatagramSocket()
+ip = InetAddress.getByName("127.0.0.1")
+message = "hello receiver =]"
+
+packet = criar DatagramPacket(message.getBytes() message.length() ip 19132)
 socket.send(packet)
 socket.close()

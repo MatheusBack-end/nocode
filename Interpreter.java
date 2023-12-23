@@ -57,12 +57,28 @@ public class Interpreter extends InterpreterUtils
     return false;
   }
 
+  public void import_package()
+  {
+    consume_token("keyword");
+    
+    String package_name = current_token.value;
+    super.package_names.add(package_name);
+
+    consume_token("string");
+  }
+
   @SuppressWarnings("deprecation")
   public boolean eat()
   {
     if(expected("new"))
     {
       create_instance();
+      return true;
+    }
+
+    if(current_token.type.equals("keyword") && current_token.value.equals("pacote"))
+    {
+      import_package();
       return true;
     }
 

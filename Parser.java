@@ -26,6 +26,11 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
+      if(identifier.value.equals("pacote"))
+      {
+        return new Token(identifier.value, "keyword");
+      }
+
       if(identifier.value.equals("criar"))
       {
         return new Token(identifier.value, "new");
