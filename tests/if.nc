@@ -1,5 +1,7 @@
-se "0" menor que "1":
+foo = 0
+
+se foo diferente de nulo:
     emita("verdade")
-;
+fim
 
 emita("foo")

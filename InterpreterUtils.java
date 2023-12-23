@@ -210,6 +210,11 @@ public class InterpreterUtils extends Consumer
       return create_instance();
     }
 
+    if(expected("nulo"))
+    {
+      return null;
+    }
+
     if(current_token.type.equals("number"))
     {
       int number = Integer.parseInt(current_token.value);
@@ -293,6 +298,29 @@ public class InterpreterUtils extends Consumer
 
       if(current_token.type.equals("operator"))
       {
+        if(current_token.value.equals("diferente"))
+        {
+          consume_token("operator");
+          Object a = variables.get(identifier.value);
+          Object b = null;
+          
+          if(current_token.value.equals("nulo"))
+          {
+            b = null;
+          }
+
+          if(variables.get(identifier.value) == null)
+          {
+            a = null;
+          }
+
+          boolean operation = a != b;
+          consume_token();
+          //System.out.println("result " + operation + " " + a + " != " + b);
+
+          return (boolean) operation;
+        }
+
         if(current_token.value.equals("menor"))
         {
           consume_token();

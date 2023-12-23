@@ -88,11 +88,12 @@ public class Interpreter extends InterpreterUtils
       return true;
     }
 
-    if(current_token.type == "keyword")
+    if(current_token.type == "keyword" && current_token.value.equals("se"))
     {
       consume_token("keyword");
 
-      boolean codition = Boolean.parseBoolean((String) expression());
+      boolean codition = (boolean) expression();
+
 
       consume_token("block");
 
@@ -208,7 +209,7 @@ public class Interpreter extends InterpreterUtils
 
         try
         {
-      source_class = Class.forName(identifier.value);
+          source_class = Class.forName(identifier.value);
         }
 
         catch(Exception e)

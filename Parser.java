@@ -31,6 +31,16 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
+      if(identifier.value.equals("diferente"))
+      {
+        return new Token(identifier.value, "operator");
+      }
+
+      if(identifier.value.equals("nulo"))
+      {
+        return new Token(identifier.value, "nulo");
+      }
+
       if(identifier.value.equals("criar"))
       {
         return new Token(identifier.value, "new");
@@ -73,6 +83,11 @@ public class Parser
 
       // ignore this context token!
       if(identifier.value.equals("que"))
+      {
+        return get_next_token();
+      }
+      
+      if(identifier.value.equals("de"))
       {
         return get_next_token();
       }
