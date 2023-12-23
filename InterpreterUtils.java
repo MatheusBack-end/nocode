@@ -173,10 +173,10 @@ public class InterpreterUtils extends Consumer
         if(current_token.type.equals("sum"))
         {
           consume_token();
-          String value_1 = interpreter.invoke_function(identifier.value, args);
-          String value_2 = (String) expression();
+          Object value_1 = interpreter.invoke_function(identifier.value, args);
+          Object value_2 = expression();
           
-          return String.valueOf(Integer.valueOf(value_1) + Integer.valueOf(value_2));
+          return (int) value_1 + (int) value_2;
         }
 
         if(interpreter.functions.containsKey(identifier.value))
@@ -194,7 +194,8 @@ public class InterpreterUtils extends Consumer
 
         catch(Exception e)
         {
-          System.out.println(e);
+          System.out.println("função: " + identifier.value + " não foi definida >:/");
+          System.exit(1);
         }
 
       }
@@ -203,12 +204,12 @@ public class InterpreterUtils extends Consumer
       {
         consume_token();
 
-        if(current_token.type.equals("string"))
+        if(current_token.type.equals("number"))
         {
-          int result = Integer.valueOf((String) variables.get(identifier.value)) - Integer.valueOf(current_token.value);
+          int result = (int) variables.get(identifier.value) - (int) Integer.parseInt(current_token.value);
           consume_token();
 
-          return String.valueOf(result);
+          return result;
         }
       }
 
@@ -230,7 +231,7 @@ public class InterpreterUtils extends Consumer
         if(current_token.value.equals("menor"))
         {
           consume_token();
-          boolean operation = Integer.valueOf((String) variables.get(identifier.value)) < Integer.valueOf(current_token.value);
+          boolean operation = (int) variables.get(identifier.value) < Integer.valueOf(current_token.value);
           consume_token();
 
           return String.valueOf(operation);

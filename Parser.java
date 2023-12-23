@@ -210,7 +210,7 @@ public class Parser
   {
     String identifier = "";
 
-    while(isAlphanumeric(letter))
+    while(isAlphanumeric(letter) || letter == '_')
     {
       identifier += Character.toString(letter);
         

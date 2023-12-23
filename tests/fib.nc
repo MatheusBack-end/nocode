@@ -1,9 +1,9 @@
-fib args n:
-  se n menor que "2":
+my_fib args n:
+  se n menor que 2:
     retornar n
   fim
 
-  retornar fib(n - "1") + fib(n - "2")
+  retornar my_fib(n - 1) + my_fib(n - 2)
 fim
 
-emita(fib("40"))
+print(fib(20))

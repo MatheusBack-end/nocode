@@ -7,7 +7,7 @@ public class Functions extends InterpreterUtils
   public List<Object> args;
   public Map<String, Object> local_variables = new HashMap<String, Object>();
   public String name;
-  String return_value;
+  public Object return_value;
 
   public Functions(List<Token> tokens, List<Object> args, Interpreter interpreter, String name)
   {
@@ -30,7 +30,7 @@ public class Functions extends InterpreterUtils
   }
 
 
-  public String call()
+  public Object call()
   {
     current_token = tokens.get(pos);
 
@@ -57,9 +57,8 @@ public class Functions extends InterpreterUtils
     if((current_token.type.equals("keyword")) && (current_token.value.equals("retornar")))
     {
       consume_token();
-      String value = (String) expression();
-
-      return_value = value;
+      
+      return_value = expression();
       return false;
     }
 

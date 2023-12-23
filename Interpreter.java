@@ -2,7 +2,6 @@ import java.util.*;
 import java.lang.reflect.*;
 import java.lang.Class;
 
-@SuppressWarnings("deprecation")
 public class Interpreter extends InterpreterUtils
 {
   Map<String, List<Token>> functions = new HashMap<String, List<Token>>();
@@ -365,7 +364,7 @@ public class Interpreter extends InterpreterUtils
     return false;
   }
 
-  public String invoke_function(String name, List<Object> args)
+  public Object invoke_function(String name, List<Object> args)
   {
     Functions f = new Functions(functions.get(name), args, this, name);
     return f.call();
