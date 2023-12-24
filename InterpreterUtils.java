@@ -46,7 +46,7 @@ public class InterpreterUtils extends Consumer
 
       catch(Exception e)
       {
-        System.out.println(e.getMessage());
+        System.out.println(e.getCause());
       }
 
       if(class_instance != null)
@@ -598,6 +598,13 @@ public class InterpreterUtils extends Consumer
       }
 
       return value.value;
+    }
+
+    if(current_token.type.equals("literal_boolean"))
+    {
+      Token literal_boolean = consume_token("literal_boolean");
+
+      return literal_boolean.value.equals("true");
     }
 
     return "";
