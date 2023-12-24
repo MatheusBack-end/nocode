@@ -31,6 +31,11 @@ public class Parser
         return new Token(identifier.value, "keyword");
       }
 
+      if(identifier.value.equals("igual"))
+      {
+        return new Token(identifier.value, "operator");
+      }
+
       if(identifier.value.equals("diferente"))
       {
         return new Token(identifier.value, "operator");
@@ -78,7 +83,8 @@ public class Parser
 
       if(identifier.value.equals("fim"))
       {
-        return new Token(";", "close_block");
+        pos++;
+        return new Token(identifier.value, "close_block");
       }
 
       // ignore this context token!

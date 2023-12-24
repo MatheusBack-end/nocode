@@ -2,13 +2,12 @@ pacote "java.net"
 pacote "java.lang"
 
 soquete = criar DatagramSocket(19132)
-buffer = criar String("                  ")
-pacote_ = criar DatagramPacket(buffer.getBytes() buffer.length())
-soquete.receive(pacote_)
-erro = nulo
+memoria_temporaria = criar String("                  ")
+recebido = criar DatagramPacket(memoria_temporaria.getBytes() memoria_temporaria.length())
+soquete.receive(recebido)
 
-se pacote_ diferente nulo:
-  dado = criar String(pacote_.getData() 0 pacote_.getLength())
+se recebido diferente de nulo:
+  dado = criar String(recebido.getData() 0 recebido.getLength())
   emita(dado)   
   soquete.close()
 fim

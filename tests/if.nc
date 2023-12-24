@@ -1,7 +1,10 @@
-foo = 0
+foo = 2 menor igual 2
 
-se foo diferente de nulo:
-    emita("verdade")
+se 1 diferente de 0:
+  emita("its work")
 fim
 
-emita("foo")
+se 1 diferente de nulo:
+  bool = 1 diferente 1
+  emita(foo.toString())
+fim

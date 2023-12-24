@@ -203,6 +203,69 @@ public class InterpreterUtils extends Consumer
     return args;
   }
 
+  public boolean is_boolean_expression()
+  {
+    return current_token.type.equals("operator");
+  }
+
+  /*
+   * simple boolean expression
+   */
+  public boolean boolean_expression(Object a)
+  {
+    if(current_token.value.equals("igual"))
+    {
+      consume_token("operator");
+      Object b = expression();
+
+      return a == b;
+    }
+
+    if(current_token.value.equals("diferente"))
+    {
+      consume_token("operator");
+      Object b = expression();
+  
+      return a != b;
+    }
+
+    if(current_token.value.equals("menor"))
+    {
+      consume_token("operator");
+      
+      if(current_token.type.equals("operator") && current_token.value.equals("igual"))
+      {
+        consume_token("operator");
+        Object b = expression();
+
+        return (int) a <= (int) b;
+      }
+
+      Object b = expression();
+
+      return (int) a < (int) b;
+    }
+
+    if(current_token.value.equals("maior"))
+    {
+      consume_token("operator");
+
+      if(current_token.type.equals("operator") && current_token.value.equals("igual"))
+      {
+        consume_token("operator");
+        Object b = expression();
+
+        return (int) a >= (int) b;
+      }
+
+      Object b = expression();
+
+      return (int) a > (int) b;
+    }
+
+    return false;
+  }
+
   public Object expression()
   {
     if(expected("new"))
@@ -212,6 +275,11 @@ public class InterpreterUtils extends Consumer
 
     if(expected("nulo"))
     {
+      if(is_boolean_expression())
+      {
+        return boolean_expression(null);
+      }
+
       return null;
     }
 
@@ -219,6 +287,11 @@ public class InterpreterUtils extends Consumer
     {
       int number = Integer.parseInt(current_token.value);
       consume_token("number");
+
+      if(is_boolean_expression())
+      {
+        return boolean_expression(number);
+      }
 
       return (int) number;
     }
