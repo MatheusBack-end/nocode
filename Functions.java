@@ -14,6 +14,8 @@ public class Functions extends InterpreterUtils
     super(tokens);
     this.args = args;
     super.interpreter = interpreter;
+    super.package_names = interpreter.package_names;
+    super.variables = interpreter.variables;
     this.interpreter = interpreter;
     this.name = name;
     link_local_variables();
@@ -51,6 +53,8 @@ public class Functions extends InterpreterUtils
 
     if(current_token.type.equals("close_block"))
     {
+      consume_token("close_block");
+
       return true;
     }
 
@@ -66,7 +70,7 @@ public class Functions extends InterpreterUtils
     {
       consume_token();
 
-      boolean codition = Boolean.parseBoolean((String) expression());
+      boolean codition = (boolean) expression();
 
       consume_token();
 
@@ -131,9 +135,17 @@ public class Functions extends InterpreterUtils
       {
         consume_token();
         
-        String value = (String) expression();
+        Object value = expression();
 
-        local_variables.put(identifier.value, value);
+        super.variables.put(identifier.value, value);
+        return true;
+      }
+
+      if(current_token.type.equals("dot"))
+      {
+        EvalDot dot_exp = new EvalDot(this, identifier);
+        dot_exp.eval();
+        
         return true;
       }
 

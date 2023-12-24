@@ -39,9 +39,14 @@ public class InterpreterUtils extends Consumer
         class_instance = Class.forName(package_name + "." + class_name).getConstructor(types).newInstance((Object[]) args.toArray(new Object[0])); 
       }
 
+      catch(ClassNotFoundException e)
+      {
+
+      }
+
       catch(Exception e)
       {
-        // ignore
+        System.out.println(e.getMessage());
       }
 
       if(class_instance != null)
@@ -164,7 +169,7 @@ public class InterpreterUtils extends Consumer
 
     if(class_instance == null)
     {
-      System.out.println("classe " + result + " não encontrada!");
+      System.out.println("classe " + result + " não encontrada! ");
       System.exit(1);
     }
 
