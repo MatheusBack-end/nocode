@@ -208,6 +208,18 @@ public class InterpreterUtils extends Consumer
     return args;
   }
 
+  public Class[] get_arg_types(Object[] args)
+  {
+    Class[] types = new Class[args.length];
+
+    for(int i = 0; i < args.length; i++)
+    {
+      types[i] = args[i].getClass();
+    }
+
+    return types;
+  }
+
   public boolean is_boolean_expression()
   {
     return current_token.type.equals("operator");
@@ -374,39 +386,9 @@ public class InterpreterUtils extends Consumer
         }
       } 
 
-      if(current_token.type.equals("operator"))
+      if(is_boolean_expression())
       {
-        if(current_token.value.equals("diferente"))
-        {
-          consume_token("operator");
-          Object a = variables.get(identifier.value);
-          Object b = null;
-          
-          if(current_token.value.equals("nulo"))
-          {
-            b = null;
-          }
-
-          if(variables.get(identifier.value) == null)
-          {
-            a = null;
-          }
-
-          boolean operation = a != b;
-          consume_token();
-          //System.out.println("result " + operation + " " + a + " != " + b);
-
-          return (boolean) operation;
-        }
-
-        if(current_token.value.equals("menor"))
-        {
-          consume_token();
-          boolean operation = (int) variables.get(identifier.value) < Integer.valueOf(current_token.value);
-          consume_token();
-
-          return String.valueOf(operation);
-        }
+        return boolean_expression(variables.get(identifier.value));
       }
 
       if(current_token.type == "dot")

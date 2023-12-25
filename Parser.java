@@ -143,7 +143,12 @@ public class Parser
 
     if(letter == "+".charAt(0))
     {
-      pos++;
+      if(consume_letter() == '+')
+      {
+        pos++;
+        return new Token("++", "pp");
+      }
+      
       return new Token("+", "sum");
     }
 

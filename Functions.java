@@ -97,6 +97,14 @@ public class Functions extends InterpreterUtils
       Token identifier = current_token;
       consume_token();
 
+      if(current_token.type.equals("pp"))
+      {
+        super.variables.replace(identifier.value, ((int) super.variables.get(identifier.value) + 1));
+        consume_token("pp");
+
+        return true;
+      }
+
       if(current_token.type == "oparam")
       {
         consume_token();

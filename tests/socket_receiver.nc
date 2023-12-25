@@ -1,6 +1,9 @@
 pacote "java.net"
 pacote "java.lang"
 
+contador = 1
+limite = 5
+
 soquete = criar DatagramSocket(19132)
 
 repeticao:
@@ -14,7 +17,10 @@ repeticao:
     emita(dado)
   fim
   
-  repeticao()
+  se contador menor que limite:
+    contador++
+    repeticao()
+  fim
 fim
 
 repeticao()

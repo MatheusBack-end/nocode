@@ -67,7 +67,6 @@ public class Interpreter extends InterpreterUtils
     consume_token("string");
   }
 
-  @SuppressWarnings("deprecation")
   public boolean eat()
   {
     if(expected("new"))
@@ -124,173 +123,13 @@ public class Interpreter extends InterpreterUtils
 
       if(current_token.type == "dot")
       {
-        Object invoke_value = null;
-
-        Class source_class = null;
-
-        while(true)
-        {
-          consume_token("dot");
-          String method_name = current_token.value;
-          consume_token("identifier");
-
-          List<Object> args = new ArrayList<Object>();
-          if(current_token.type.equals("oparam"))
-          {
-            consume_token("oparam");
-    
-            while(current_token.type != "cparam")
-            {
-              args.add(expression());
-            }
-    
-            consume_token("cparam");
-          }
-
-          Class[] arg_types = new Class[args.size()];
-              
-          for(int i = 0; i < args.size(); i++)
-          {
-            if(args.get(i) == null)
-              continue;
-                
-            Class object_class = args.get(i).getClass();
-
-            if(object_class.getName().equals("java.lang.Integer"))
-              object_class = int.class;
-
-            arg_types[i] = object_class;
-          }
-
-          if(invoke_value == null)
-          {
-            if(variables.containsKey(identifier.value))
-            {
-              try
-              {
-                Method method = variables.get(identifier.value).getClass().getMethod(method_name, arg_types);
-                invoke_value = method.invoke(variables.get(identifier.value), (Object[]) args.toArray(new Object[0]));
-              }
-
-              catch(Exception e)
-              {
-                System.out.println(e + " " + e.getCause());
-              }
-
-              if(current_token.type.equals("dot"))
-                continue;
-
-              return true;
-            }
-          }
-
-          // seconds or others calls
-          //
-   
-          try
-          {
-            Method method = invoke_value.getClass().getMethod(method_name, arg_types);
-            invoke_value = method.invoke(invoke_value, (Object[]) args.toArray(new Object[0]));
-          }
-
-          catch(Exception e)
-          {
-            System.out.println(e);
-          }
-
-          if(!current_token.type.equals("dot"))
-          {
-            break;
-          }
-        }
-
-        if(invoke_value != null)
-          return true;
-
-        try
-        {
-          source_class = Class.forName(identifier.value);
-        }
-
-        catch(Exception e)
-        {
-          System.out.println(e);
-        }
-
-        while(current_token.type.equals("identifier"))
-        {
-          Token name = current_token;
-          consume_token("identifier");
-
-          if(current_token.type.equals("dot"))
-          {
-            consume_token("dot");
-            continue;
-          }
-
-          if(current_token.type.equals("oparam"))
-          {
-            consume_token("oparam");
-            List<Object> args = new ArrayList<Object>();
-
-            while(current_token.type != "cparam")
-            {
-              args.add(expression());
-            }
-
-            consume_token("cparam");
-
-            Class[] arg_types = new Class[args.size()];
-              
-            for(int i = 0; i < args.size(); i++)
-            {
-              if(args.get(i) == null)
-                continue;
-                
-              Class object_class = args.get(i).getClass();
-
-              if(object_class.getName().equals("java.lang.Integer"))
-                object_class = int.class;
-
-              arg_types[i] = object_class;
-            }
-            
-            try
-            {
-              Method  method = source_class.getMethod(name.value, arg_types);
-              method.invoke(this, (Object[]) args.toArray(new Object[0]));
-            }
-
-            catch(Exception e)
-            {
-              System.out.println(e);
-            }
-
-            if(!current_token.type.equals("dot"))
-            {
-              break;
-            }
-          }
-        }
-
-        for(String loc: method_loc)
-        {
-          System.out.println(loc);
-        }
+        EvalDot dot_exp = new EvalDot(this, identifier);
+        dot_exp.eval();
       }
 
       if(current_token.type == "oparam")
       {
-        consume_token("oparam");
-
-        List<Object> args = new ArrayList<Object>();
-
-        while(current_token.type != "cparam")
-        {
-          args.add(expression());
-        }
-
-        consume_token("cparam");
+        List<Object> args = get_args();
 
         if(functions.containsKey(identifier.value))
         {
@@ -298,23 +137,10 @@ public class Interpreter extends InterpreterUtils
           return true;
         }
 
+        Class[] arg_types = get_arg_types((Object[]) args.toArray(new Object[0]));
+
         try
         {
-          Class[] arg_types = new Class[args.size()];
-              
-          for(int i = 0; i < args.size(); i++)
-          {
-            if(args.get(i) == null)
-              continue;
-                
-            Class object_class = args.get(i).getClass();
-
-            if(object_class.getName().equals("java.lang.Integer"))
-              object_class = int.class;
-
-            arg_types[i] = object_class;
-          }
-
           Method method = Interpreter.class.getMethod(identifier.value, arg_types);
           method.invoke(this, (Object[]) args.toArray(new Object[0]));
 

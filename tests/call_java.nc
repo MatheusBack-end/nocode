@@ -7,3 +7,5 @@ message = "hello receiver =]"
 packet = criar DatagramPacket(message.getBytes() message.length() ip 19132)
 socket.send(packet)
 socket.close()
+
+emita("end")
