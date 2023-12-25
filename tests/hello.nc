@@ -1,1 +1,1 @@
-emita("hello, world")
+emita("hello, world") fim se nothing
