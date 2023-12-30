@@ -1,4 +1,5 @@
-// comment here
-emita("hello, world") 
+func:
+  retornar "hi"
+fim
 
-emita("hi may friend")
+emita(func())

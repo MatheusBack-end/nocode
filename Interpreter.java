@@ -23,13 +23,18 @@ public class Interpreter extends InterpreterUtils
   {
     System.out.println(value);
   }
-
+  
+  public void print(Integer value)
+  {
+    System.out.println(value);
+  }
+  
   public void emita(String value)
   {
     System.out.println(value);
   }
 
-  public Interpreter(Parser parser)
+  public Interpreter(Tokenizer parser)
   {
     super(parser);
     super.interpreter = this;
@@ -41,7 +46,7 @@ public class Interpreter extends InterpreterUtils
   {
     current_token = parser.get_next_token();
 
-    while(current_token.type != "eof")
+    while(current_token.type != Token.Types.EOF)
     {
       eat();
     }
@@ -59,54 +64,59 @@ public class Interpreter extends InterpreterUtils
 
   public void import_package()
   {
-    consume_token("keyword");
+    consume_token(Token.Types.KEYWORD);
     
     String package_name = current_token.value;
     super.package_names.add(package_name);
 
-    consume_token("string");
+    consume_token(Token.Types.STRING);
   }
 
   public boolean eat()
   {
-    if(expected("new"))
+    if(current_token.type == Token.Types.KEYWORD)
     {
-      create_instance();
-      return true;
+      if(current_token.value.equals("new"))
+      {
+        create_instance();
+        return true;
+      }
     }
 
-    if(current_token.type.equals("keyword") && current_token.value.equals("pacote"))
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("pacote"))
     {
       import_package();
       return true;
     }
 
-    if(current_token.type == "close_block")
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("fim"))
     {
       consume_token();
       return true;
     }
 
-    if(current_token.type == "keyword" && current_token.value.equals("se"))
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("se"))
     {
-      consume_token("keyword");
+      consume_token(Token.Types.KEYWORD);
 
       boolean codition = (boolean) expression();
 
-
-      consume_token("block");
+      consume_token(Token.Types.BLOCK);
 
       if(!codition)
       {
         List<Token> if_block = new ArrayList<Token>();
 
-        while(current_token.type != "close_block")
+        while(current_token.type != Token.Types.KEYWORD && !(current_token.value.equals("fim")))
         {
           if_block.add(current_token);
           consume_token();
+
+          if(current_token.type == Token.Types.EOF)
+            return true;
         }
 
-        consume_token("close_block");
+        consume_token(Token.Types.KEYWORD);
 
         return true;
       }
@@ -114,20 +124,20 @@ public class Interpreter extends InterpreterUtils
       return true;
     }
 
-    if(current_token.type == "identifier")
+    if(current_token.type == Token.Types.IDENTIFIER)
     {
       Token identifier = current_token;
-      consume_token("identifier");
+      consume_token(Token.Types.IDENTIFIER);
 
       List<String> method_loc = new ArrayList<String>();
 
-      if(current_token.type == "dot")
+      if(current_token.type == Token.Types.DOT)
       {
         EvalDot dot_exp = new EvalDot(this, identifier);
         dot_exp.eval();
       }
 
-      if(current_token.type == "oparam")
+      if(current_token.type == Token.Types.OPARAM)
       {
         List<Object> args = get_args();
 
@@ -153,9 +163,9 @@ public class Interpreter extends InterpreterUtils
         }
       }
 
-      if(current_token.type == "equals")
+      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("=")))
       {
-        consume_token("equals");
+        consume_token(Token.Types.OPERATOR);
         
         Object value = expression();
 
@@ -165,33 +175,33 @@ public class Interpreter extends InterpreterUtils
 
       if(current_token.value.equals("args"))
       {
-        consume_token("keyword");
+        consume_token(Token.Types.KEYWORD);
 
         List<String> parameters = new ArrayList<String>();
 
-        while(!current_token.type.equals("block"))
+        while(!(current_token.type == Token.Types.BLOCK))
         {
           parameters.add(current_token.value);
-          consume_token("identifier");
+          consume_token(Token.Types.IDENTIFIER);
         }
 
         function_parameters.put(identifier.value, parameters);
       }
 
-      if(current_token.type == "block")
+      if(current_token.type == Token.Types.BLOCK)
       {
-        consume_token("block");
+        consume_token(Token.Types.BLOCK);
         List<Token> function_block = new ArrayList<Token>();
         int scopes = 1;
 
         while(scopes != 0)
         {
-          if(current_token.type.equals("block"))
+          if(current_token.type == Token.Types.BLOCK)
           {
             scopes++;
           }
 
-          if(current_token.type.equals("close_block"))
+          if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("fim"))
           {
             scopes--;
           }

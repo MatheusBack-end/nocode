@@ -74,21 +74,21 @@ public class EvalDot
 
       while(true)
       {
-        interpreter.consume_token("dot");
-        String method_name = interpreter.consume_token("identifier").value;
+        interpreter.consume_token(Token.Types.DOT);
+        String method_name = interpreter.consume_token(Token.Types.IDENTIFIER).value;
 
         List<Object> args = new ArrayList<Object>();
         
         if(interpreter.current_token.type.equals("oparam"))
         {
-          interpreter.consume_token("oparam");
+          interpreter.consume_token(Token.Types.OPARAM);
     
-          while(interpreter.current_token.type != "cparam")
+          while(interpreter.current_token.type != Token.Types.CPARAM)
           {
             args.add(interpreter.expression());
           }
     
-          interpreter.consume_token("cparam");
+          interpreter.consume_token(Token.Types.CPARAM);
         }
 
         Class[] arg_types = new Class[args.size()];
@@ -121,7 +121,7 @@ public class EvalDot
               System.out.println(e + " " + e.getCause());
             }
 
-            if(interpreter.current_token.type.equals("dot"))
+            if(interpreter.current_token.type == Token.Types.DOT)
               continue;
 
             return invoke_value;
@@ -141,7 +141,7 @@ public class EvalDot
           System.out.println(e);
         }
 
-        if(!interpreter.current_token.type.equals("dot"))
+        if(!(interpreter.current_token.type == Token.Types.DOT))
         {
           break;
         }

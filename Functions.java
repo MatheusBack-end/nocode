@@ -27,6 +27,8 @@ public class Functions extends InterpreterUtils
     for(Object arg: args)
     {
       super.variables.put(interpreter.function_parameters.get(name).get(iota), arg);
+      //System.out.println(arg.getClass().getName());
+
       iota++;
     }
   }
@@ -51,14 +53,16 @@ public class Functions extends InterpreterUtils
       return false;
     }
 
-    if(current_token.type.equals("close_block"))
+   // System.out.println(current_token.type + " - " + current_token.value);
+
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("fim"))
     {
-      consume_token("close_block");
+      consume_token(Token.Types.KEYWORD);
 
       return true;
     }
 
-    if((current_token.type.equals("keyword")) && (current_token.value.equals("retornar")))
+    if((current_token.type == Token.Types.KEYWORD) && (current_token.value.equals("retornar")))
     {
       consume_token();
       
@@ -66,7 +70,7 @@ public class Functions extends InterpreterUtils
       return false;
     }
 
-    if((current_token.type.equals("keyword")) && (current_token.value.equals("se")))
+    if((current_token.type == Token.Types.KEYWORD) && (current_token.value.equals("se")))
     {
       consume_token();
 
@@ -74,44 +78,55 @@ public class Functions extends InterpreterUtils
 
       consume_token();
 
+      //System.out.println(codition);
+
       if(!codition)
       {
         List<Token> if_block = new ArrayList<Token>();
 
-        while(current_token.type != "close_block")
+        while(true)
         {
+          if(current_token.type == Token.Types.KEYWORD)
+          {
+            if(current_token.value.equals("fim"))
+              break;
+          }
+
           if_block.add(current_token);
           consume_token();
         }
+
+        //System.out.println(if_block);
 
         consume_token();
 
         return true;
       }
 
+      //System.out.println("codition is true");
       return true;
     }
 
-    if(current_token.type == "identifier")
+    if(current_token.type == Token.Types.IDENTIFIER)
     {
       Token identifier = current_token;
       consume_token();
 
-      if(current_token.type.equals("pp"))
+      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("+")))
       {
         super.variables.replace(identifier.value, ((int) super.variables.get(identifier.value) + 1));
-        consume_token("pp");
+        consume_token();
 
         return true;
       }
 
-      if(current_token.type == "oparam")
+      if(current_token.type == Token.Types.OPARAM)
       {
         consume_token();
 
         List<Object> args = new ArrayList<Object>();
 
-        while(current_token.type != "cparam")
+        while(current_token.type != Token.Types.CPARAM)
         {
           args.add(expression());
         }
@@ -127,8 +142,8 @@ public class Functions extends InterpreterUtils
 
         try
         {
-          Method method = Interpreter.class.getMethod(identifier.value, String.class);
-          method.invoke(interpreter, args.get(0));
+          Method method = Interpreter.class.getMethod(identifier.value, get_arg_types(args.toArray(new Object[0])));
+          method.invoke(interpreter, (Object[]) args.toArray(new Object[0]));
 
           return true;
         }
@@ -139,7 +154,7 @@ public class Functions extends InterpreterUtils
         }
       }
 
-      if(current_token.type == "equals")
+      if(current_token.type == Token.Types.EQUALS)
       {
         consume_token();
         
@@ -149,14 +164,15 @@ public class Functions extends InterpreterUtils
         return true;
       }
 
-      if(current_token.type.equals("dot"))
+      if(current_token.type == Token.Types.DOT)
       {
         EvalDot dot_exp = new EvalDot(this, identifier);
         dot_exp.eval();
         
         return true;
       }
-
+      
+      //System.out.println(current_token.type + " " + current_token.value);
       System.exit(0);
     }
 

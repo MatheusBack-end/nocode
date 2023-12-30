@@ -9,7 +9,7 @@ public class InterpreterUtils extends Consumer
   public List<String> package_names = new ArrayList<String>();
   public Interpreter interpreter;
 
-  public InterpreterUtils(Parser parser)
+  public InterpreterUtils(Tokenizer parser)
   {
     super(parser);
   }
@@ -19,9 +19,9 @@ public class InterpreterUtils extends Consumer
     super(tokens);
   }
 
-  public boolean expected(String token_type)
+  public boolean expected(Token.Types token_type)
   {
-    if(!current_token.type.equals(token_type))
+    if(!(current_token.type == token_type))
       return false;
 
     consume_token(token_type);
@@ -88,15 +88,15 @@ public class InterpreterUtils extends Consumer
 
   public Object create_instance()
   {
-    Token java_class_name = consume_token("identifier");
+    Token java_class_name = consume_token(Token.Types.IDENTIFIER);
     String result = "";
     result += java_class_name.value;
 
-    if(current_token.type.equals("dot"))
+    if(current_token.type == Token.Types.DOT)
     {
       List<Token> trace = new ArrayList<Token>();
 
-      while(!current_token.type.equals("oparam"))
+      while(!(current_token.type == Token.Types.OPARAM))
       {
         trace.add(current_token);
         consume_token();
@@ -108,16 +108,16 @@ public class InterpreterUtils extends Consumer
       }
     }
 
-    consume_token("oparam");
+    consume_token(Token.Types.OPARAM);
 
     List<Object> args = new ArrayList<Object>();
 
-    while(!current_token.type.equals("cparam"))
+    while(!(current_token.type == Token.Types.CPARAM))
     {
       args.add(expression());
     }
 
-    consume_token("cparam");
+    consume_token(Token.Types.CPARAM);
 
     Object class_instance = null;
     Class[] types = new Class[args.size()];
@@ -180,7 +180,7 @@ public class InterpreterUtils extends Consumer
   {
     List<String> all_method = new ArrayList<String>();
 
-    while(!current_token.type.equals("oparam"))
+    while(!(current_token.type == Token.Types.OPARAM))
     {
       all_method.add(current_token.value);
       consume_token();
@@ -193,16 +193,16 @@ public class InterpreterUtils extends Consumer
   {
     List<Object> args = new ArrayList<Object>();
 
-    if(current_token.type.equals("oparam"))
+    if(current_token.type == Token.Types.OPARAM)
     {
-      consume_token("oparam");
+      consume_token(Token.Types.OPARAM);
       
-      while(!current_token.type.equals("cparam"))
+      while(!(current_token.type == Token.Types.CPARAM))
       {
         args.add(expression());
       }
 
-      consume_token("cparam");
+      consume_token(Token.Types.CPARAM);
     }
 
     return args;
@@ -214,7 +214,12 @@ public class InterpreterUtils extends Consumer
 
     for(int i = 0; i < args.length; i++)
     {
-      types[i] = args[i].getClass();
+      Class class_type = args[i].getClass();
+
+      if(class_type.getName().equals("java.lang.Interger"))
+        class_type = int.class;
+
+      types[i] = class_type;
     }
 
     return types;
@@ -222,7 +227,15 @@ public class InterpreterUtils extends Consumer
 
   public boolean is_boolean_expression()
   {
-    return current_token.type.equals("operator");
+    if(current_token.type != Token.Types.KEYWORD)
+      return false;
+
+    if(current_token.value.equals("diferente")) return true;
+    if(current_token.value.equals("igual")) return true;
+    if(current_token.value.equals("maior")) return true;
+    if(current_token.value.equals("menor")) return true;
+
+    return false;
   }
 
   /*
@@ -232,7 +245,7 @@ public class InterpreterUtils extends Consumer
   {
     if(current_token.value.equals("igual"))
     {
-      consume_token("operator");
+      consume_token(Token.Types.KEYWORD);
       Object b = expression();
 
       return a == b;
@@ -240,7 +253,7 @@ public class InterpreterUtils extends Consumer
 
     if(current_token.value.equals("diferente"))
     {
-      consume_token("operator");
+      consume_token(Token.Types.KEYWORD);
       Object b = expression();
   
       return a != b;
@@ -248,11 +261,11 @@ public class InterpreterUtils extends Consumer
 
     if(current_token.value.equals("menor"))
     {
-      consume_token("operator");
+      consume_token(Token.Types.KEYWORD);
       
-      if(current_token.type.equals("operator") && current_token.value.equals("igual"))
+      if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("igual"))
       {
-        consume_token("operator");
+        consume_token(Token.Types.KEYWORD);
         Object b = expression();
 
         return (int) a <= (int) b;
@@ -265,11 +278,11 @@ public class InterpreterUtils extends Consumer
 
     if(current_token.value.equals("maior"))
     {
-      consume_token("operator");
+      consume_token(Token.Types.KEYWORD);
 
-      if(current_token.type.equals("operator") && current_token.value.equals("igual"))
+      if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("igual"))
       {
-        consume_token("operator");
+        consume_token(Token.Types.KEYWORD);
         Object b = expression();
 
         return (int) a >= (int) b;
@@ -285,12 +298,12 @@ public class InterpreterUtils extends Consumer
 
   public Object expression()
   {
-    if(expected("new"))
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("new"))
     {
       return create_instance();
     }
 
-    if(expected("nulo"))
+    if(current_token.type == Token.Types.NULL)
     {
       if(is_boolean_expression())
       {
@@ -300,42 +313,69 @@ public class InterpreterUtils extends Consumer
       return null;
     }
 
-    if(current_token.type.equals("number"))
+    if(current_token.type == Token.Types.NUMBER)
     {
       int number = Integer.parseInt(current_token.value);
-      consume_token("number");
+      consume_token(Token.Types.NUMBER);
 
       if(is_boolean_expression())
       {
         return boolean_expression(number);
       }
 
+      if(current_token.type == Token.Types.OPERATOR)
+      {
+        System.out.println(current_token.type + " " + current_token.value);
+        if(current_token.value.equals("+"))
+        {
+          consume_token(Token.Types.OPERATOR);
+
+          int result = number + Integer.parseInt(current_token.value);
+          consume_token(Token.Types.NUMBER);
+
+          return result;
+        }
+      
+        if(current_token.value.equals("-"))
+        {
+          consume_token(Token.Types.OPERATOR);
+
+          int result = number - Integer.parseInt(current_token.value);
+          consume_token(Token.Types.NUMBER);
+
+          return result;
+        }
+
+        return (int) number;
+      }
+
       return (int) number;
     }
 
-    if(current_token.type.equals("identifier"))
+    if(current_token.type == Token.Types.IDENTIFIER)
     {
       Token identifier = current_token;
       consume_token();
 
-      if(current_token.type.equals("oparam"))
+      if(current_token.type == Token.Types.OPARAM)
       {
         consume_token();
 
         List<Object> args = new ArrayList<Object>();
-        while(!current_token.type.equals("cparam"))
+        while(!(current_token.type == Token.Types.CPARAM))
         {
           args.add(expression());
         }
 
         consume_token();
 
-        if(current_token.type.equals("sum"))
+        if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("+")))
         {
           consume_token();
           Object value_1 = interpreter.invoke_function(identifier.value, args);
           Object value_2 = expression();
-          
+         
+          System.out.println(value_1 + " + " + value_2);
           return (int) value_1 + (int) value_2;
         }
 
@@ -360,12 +400,13 @@ public class InterpreterUtils extends Consumer
 
       }
 
-      if(current_token.type.equals("sub"))
+      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("-")))
       {
         consume_token();
 
-        if(current_token.type.equals("number"))
+        if(current_token.type == Token.Types.NUMBER)
         {
+          System.out.println(variables.get(identifier.value) + " - " + Integer.parseInt(current_token.value));
           int result = (int) variables.get(identifier.value) - (int) Integer.parseInt(current_token.value);
           consume_token();
 
@@ -373,11 +414,11 @@ public class InterpreterUtils extends Consumer
         }
       }
 
-      if(current_token.type.equals("sum"))
+      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("+")))
       {
         consume_token();
 
-        if(current_token.type.equals("string"))
+        if(current_token.type == Token.Types.STRING)
         {
           int result = Integer.valueOf((String) variables.get(identifier.value)) + Integer.valueOf(current_token.value);
           consume_token();
@@ -391,7 +432,7 @@ public class InterpreterUtils extends Consumer
         return boolean_expression(variables.get(identifier.value));
       }
 
-      if(current_token.type == "dot")
+      if(current_token.type == Token.Types.DOT)
       {
         Object invoke_value = null;
         Class source_class = null;
@@ -454,21 +495,21 @@ public class InterpreterUtils extends Consumer
 
         while(true)
         {
-          consume_token("dot");
+          consume_token(Token.Types.DOT);
           String method_name = current_token.value;
-          consume_token("identifier");
+          consume_token(Token.Types.IDENTIFIER);
 
           List<Object> args = new ArrayList<Object>();
-          if(current_token.type.equals("oparam"))
+          if(current_token.type == Token.Types.OPARAM)
           {
-            consume_token("oparam");
+            consume_token(Token.Types.OPARAM);
     
-            while(current_token.type != "cparam")
+            while(current_token.type != Token.Types.CPARAM)
             {
               args.add(expression());
             }
     
-            consume_token("cparam");
+            consume_token(Token.Types.CPARAM);
           }
 
           Class[] arg_types = new Class[args.size()];
@@ -501,7 +542,7 @@ public class InterpreterUtils extends Consumer
                 System.out.println(e + " " + e.getCause());
               }
 
-              if(current_token.type.equals("dot"))
+              if(current_token.type == Token.Types.DOT)
                 continue;
 
               return invoke_value;
@@ -522,7 +563,7 @@ public class InterpreterUtils extends Consumer
             System.out.println(e);
           }
 
-          if(!current_token.type.equals("dot"))
+          if(!(current_token.type == Token.Types.DOT))
           {
             break;
           }
@@ -544,12 +585,12 @@ public class InterpreterUtils extends Consumer
       }
     }
 
-    if(current_token.type.equals("string"))
+    if(current_token.type == Token.Types.STRING)
     {
       Token value = current_token;
       consume_token();
 
-      if(current_token.type.equals("operator"))
+      if(current_token.type == Token.Types.OPERATOR)
       {
         if(current_token.value.equals("menor"))
         {
@@ -562,7 +603,7 @@ public class InterpreterUtils extends Consumer
           return String.valueOf(operation);
         }
 
-        if(current_token.value.equals("maior"))
+        if(current_token.value.equals("maior")) 
         {
           consume_token();
 
@@ -574,7 +615,7 @@ public class InterpreterUtils extends Consumer
         }
       }
 
-      if((current_token.type.equals("identifier")) || (current_token.type.equals("cparam")))
+      if((current_token.type == Token.Types.IDENTIFIER || (current_token.type == Token.Types.CPARAM)))
       {
         return value.value;
       }
@@ -582,9 +623,9 @@ public class InterpreterUtils extends Consumer
       return value.value;
     }
 
-    if(current_token.type.equals("literal_boolean"))
+    if(current_token.type == Token.Types.LITERAL_BOOLEAN)
     {
-      Token literal_boolean = consume_token("literal_boolean");
+      Token literal_boolean = consume_token(Token.Types.LITERAL_BOOLEAN);
 
       return literal_boolean.value.equals("true");
     }

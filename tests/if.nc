@@ -1,10 +1,7 @@
-foo = 2 menor igual 2
-
-se 1 diferente de 0:
-  emita("its work")
+se 1 diferente 0:
+  emita("diferente")
 fim
 
-se 1 diferente de nulo:
-  bool = 1 diferente 1
-  emita(foo.toString())
+se 1 igual 0:
+  emita("iguais")
 fim

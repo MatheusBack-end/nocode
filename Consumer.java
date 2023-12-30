@@ -2,13 +2,13 @@ import java.util.*;
 
 public class Consumer
 {
-  public Parser parser;
+  public Tokenizer parser;
   public List<Token> tokens;
   public Token current_token;
   public boolean is_list = false;
   public int pos = 0;
 
-  public Consumer(Parser parser)
+  public Consumer(Tokenizer parser)
   {
     this.parser = parser;
   }
@@ -19,11 +19,11 @@ public class Consumer
     this.is_list = true;
   }
 
-  public Token consume_token(String... token_types)
+  public Token consume_token(Token.Types... token_types)
   {
     Token previous_token = current_token;
 
-    for(String type: token_types)
+    for(Token.Types type: token_types)
     {
       if(current_token.type.equals(type))
       {

@@ -13,9 +13,8 @@ class Main
 
     String file_data = read_file(args[0]);
     Tokenizer tokenizer = new Tokenizer(file_data);
-    tokenizer.get_tokens();
 
-    //new Interpreter(new Parser(file_data));
+    new Interpreter(new Tokenizer(file_data));
   }
 
   public static String read_file(String path)

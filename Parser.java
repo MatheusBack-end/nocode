@@ -1,11 +1,36 @@
+import java.util.*;
+
 public class Parser
 {
-  public String text;
+ /* public String text;
   private int pos = 0;
 
   public Parser(String text)
   {
     this.text = text;
+  }
+
+  public void get_tokens()
+  {
+    long start_time = System.currentTimeMillis();
+
+    List<Token> tokens = new ArrayList<Token>();
+    Token token = get_next_token();
+
+    while(!token.type.equals("eof"))
+    {
+      tokens.add(token);
+      token = get_next_token();
+    }
+
+    tokens.add(token);
+
+    for(Token current_token: tokens)
+    {
+      //System.out.println(current_token.type + " [" + current_token.value + "]");
+    }
+
+    System.out.println(System.currentTimeMillis() - start_time);
   }
 
   public Token get_next_token()
@@ -280,5 +305,5 @@ public class Parser
   public boolean is_number(char letter)
   {
     return Character.isDigit(letter);
-  }
+  }*/
 }
