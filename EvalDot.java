@@ -14,7 +14,7 @@ public class EvalDot
 
   public Object eval()
   {
-    if(interpreter.current_token.type.equals("dot"))
+    if(interpreter.current_token.type == Token.Types.DOT)
     {
       Object invoke_value = null;
       Class source_class = null;
@@ -79,7 +79,7 @@ public class EvalDot
 
         List<Object> args = new ArrayList<Object>();
         
-        if(interpreter.current_token.type.equals("oparam"))
+        if(interpreter.current_token.type == Token.Types.OPARAM)
         {
           interpreter.consume_token(Token.Types.OPARAM);
     
@@ -150,6 +150,9 @@ public class EvalDot
       if(invoke_value != null)
         return invoke_value;
     }
+
+    System.out.println("error, dot expression failed!");
+    System.exit(1);
 
     return null;
   }

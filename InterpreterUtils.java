@@ -8,6 +8,7 @@ public class InterpreterUtils extends Consumer
   public Map<String, Object> variables = new HashMap<String, Object>();
   public List<String> package_names = new ArrayList<String>();
   public Interpreter interpreter;
+  public boolean in_math_expression = false;
 
   public InterpreterUtils(Tokenizer parser)
   {
@@ -41,7 +42,7 @@ public class InterpreterUtils extends Consumer
 
       catch(ClassNotFoundException e)
       {
-
+        //System.out.println(e);
       }
 
       catch(Exception e)
@@ -88,6 +89,7 @@ public class InterpreterUtils extends Consumer
 
   public Object create_instance()
   {
+    consume_token(Token.Types.KEYWORD);
     Token java_class_name = consume_token(Token.Types.IDENTIFIER);
     String result = "";
     result += java_class_name.value;
@@ -238,6 +240,19 @@ public class InterpreterUtils extends Consumer
     return false;
   }
 
+  public boolean is_math_expression()
+  {
+    if(current_token.type != Token.Types.OPERATOR)
+      return false;
+
+    if(current_token.value.equals("+")) return true;
+    if(current_token.value.equals("-")) return true;
+    if(current_token.value.equals("/")) return true;
+    if(current_token.value.equals("*")) return true;
+
+    return false;
+  }
+
   /*
    * simple boolean expression
    */
@@ -298,13 +313,15 @@ public class InterpreterUtils extends Consumer
 
   public Object expression()
   {
-    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("new"))
+    if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("criar"))
     {
       return create_instance();
     }
 
-    if(current_token.type == Token.Types.NULL)
+    if(current_token.type == Token.Types.KEYWORD && (current_token.value.equals("nulo")))
     {
+      consume_token(Token.Types.KEYWORD);
+
       if(is_boolean_expression())
       {
         return boolean_expression(null);
@@ -315,41 +332,24 @@ public class InterpreterUtils extends Consumer
 
     if(current_token.type == Token.Types.NUMBER)
     {
+      Token token_number = current_token;
       int number = Integer.parseInt(current_token.value);
       consume_token(Token.Types.NUMBER);
 
-      if(is_boolean_expression())
+      if(is_boolean_expression() && !(in_math_expression))
       {
         return boolean_expression(number);
       }
 
-      if(current_token.type == Token.Types.OPERATOR)
+      if(is_math_expression() && !(in_math_expression))
       {
-        System.out.println(current_token.type + " " + current_token.value);
-        if(current_token.value.equals("+"))
-        {
-          consume_token(Token.Types.OPERATOR);
-
-          int result = number + Integer.parseInt(current_token.value);
-          consume_token(Token.Types.NUMBER);
-
-          return result;
-        }
-      
-        if(current_token.value.equals("-"))
-        {
-          consume_token(Token.Types.OPERATOR);
-
-          int result = number - Integer.parseInt(current_token.value);
-          consume_token(Token.Types.NUMBER);
-
-          return result;
-        }
-
-        return (int) number;
+        //System.out.println("math exp");
+        MathExpression exp = new MathExpression(this, token_number);
+        
+        return exp.eval();
       }
 
-      return (int) number;
+      return number;
     }
 
     if(current_token.type == Token.Types.IDENTIFIER)
@@ -397,35 +397,7 @@ public class InterpreterUtils extends Consumer
           System.out.println("função: " + identifier.value + " não foi definida >:/");
           System.exit(1);
         }
-
       }
-
-      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("-")))
-      {
-        consume_token();
-
-        if(current_token.type == Token.Types.NUMBER)
-        {
-          System.out.println(variables.get(identifier.value) + " - " + Integer.parseInt(current_token.value));
-          int result = (int) variables.get(identifier.value) - (int) Integer.parseInt(current_token.value);
-          consume_token();
-
-          return result;
-        }
-      }
-
-      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("+")))
-      {
-        consume_token();
-
-        if(current_token.type == Token.Types.STRING)
-        {
-          int result = Integer.valueOf((String) variables.get(identifier.value)) + Integer.valueOf(current_token.value);
-          consume_token();
-
-          return String.valueOf(result);
-        }
-      } 
 
       if(is_boolean_expression())
       {
@@ -434,143 +406,8 @@ public class InterpreterUtils extends Consumer
 
       if(current_token.type == Token.Types.DOT)
       {
-        Object invoke_value = null;
-        Class source_class = null;
-
-        if(!variables.containsKey(identifier.value))
-        {
-          // static methods
-
-          List<String> static_method = get_static_method_name();
-          String origin_class = identifier.value; 
-          String method_name = static_method.get(static_method.size() - 1);
-
-          for(int i = 0; i < static_method.size() - 2; i++)
-          {
-            origin_class += static_method.get(i);
-          }
-
-          List<Object> args = get_args();
-          Class[] arg_types = new Class[args.size()];
-
-          for(int i = 0; i < arg_types.length; i++)
-          {
-            Class arg_type = args.get(i).getClass();
-
-            if(arg_type.getName().equals("java.lang.Integer"))
-              arg_type = args.get(i).getClass();
-
-            arg_types[i] = arg_type;
-          }
-
-          Object invoke_result = null;
-
-          try
-          {
-            Class class_of_static = Class.forName(origin_class);
-            Method method = class_of_static.getMethod(method_name, arg_types);
-
-            invoke_result = method.invoke(null, args.toArray(new Object[0]));
-          }
-
-          catch(Exception e)
-          {
-            // ignore
-            //System.out.println(e + " " + e.getCause());
-          }
-
-          if(invoke_result == null)
-          {
-            invoke_result = static_in_package(origin_class, method_name, arg_types, args);
-          }
-
-          if(invoke_result == null)
-          {
-            System.out.println("função estatica " + origin_class + "->" + method_name + " não encontrada!");
-            System.exit(0);
-          }
-
-          return invoke_result;
-        }
-
-        while(true)
-        {
-          consume_token(Token.Types.DOT);
-          String method_name = current_token.value;
-          consume_token(Token.Types.IDENTIFIER);
-
-          List<Object> args = new ArrayList<Object>();
-          if(current_token.type == Token.Types.OPARAM)
-          {
-            consume_token(Token.Types.OPARAM);
-    
-            while(current_token.type != Token.Types.CPARAM)
-            {
-              args.add(expression());
-            }
-    
-            consume_token(Token.Types.CPARAM);
-          }
-
-          Class[] arg_types = new Class[args.size()];
-              
-          for(int i = 0; i < args.size(); i++)
-          {
-            if(args.get(i) == null)
-              continue;
-                
-            Class object_class = args.get(i).getClass();
-
-            if(object_class.getName().equals("java.lang.Integer"))
-              object_class = int.class;
-
-            arg_types[i] = object_class;
-          }
-
-          if(invoke_value == null)
-          {
-            if(variables.containsKey(identifier.value))
-            {
-              try
-              {
-                Method method = variables.get(identifier.value).getClass().getMethod(method_name, arg_types);
-                invoke_value = method.invoke(variables.get(identifier.value), (Object[]) args.toArray(new Object[0]));
-              }
-
-              catch(Exception e)
-              {
-                System.out.println(e + " " + e.getCause());
-              }
-
-              if(current_token.type == Token.Types.DOT)
-                continue;
-
-              return invoke_value;
-            }
-          }
-
-          // seconds or others calls
-          //
-   
-          try
-          {
-            Method method = invoke_value.getClass().getMethod(method_name, arg_types);
-            invoke_value = method.invoke(invoke_value, (Object[]) args.toArray(new Object[0]));
-          }
-
-          catch(Exception e)
-          {
-            System.out.println(e);
-          }
-
-          if(!(current_token.type == Token.Types.DOT))
-          {
-            break;
-          }
-        }
-
-        if(invoke_value != null)
-          return invoke_value;
+        EvalDot dot_exp = new EvalDot(this, identifier);
+        return dot_exp.eval();
       }
 
       if(!variables.containsKey(identifier.value))
@@ -581,6 +418,14 @@ public class InterpreterUtils extends Consumer
 
       else
       {
+        if(is_math_expression() && !(in_math_expression))
+        {
+          Token token_number = new Token(String.valueOf(variables.get(identifier.value)), Token.Types.NUMBER);
+          MathExpression exp = new MathExpression(this, token_number);
+          
+          return exp.eval();
+        }
+
         return variables.get(identifier.value);
       }
     }
@@ -588,32 +433,7 @@ public class InterpreterUtils extends Consumer
     if(current_token.type == Token.Types.STRING)
     {
       Token value = current_token;
-      consume_token();
-
-      if(current_token.type == Token.Types.OPERATOR)
-      {
-        if(current_token.value.equals("menor"))
-        {
-          consume_token();
-
-          boolean operation = Integer.valueOf(value.value) < Integer.valueOf(current_token.value);
-
-          consume_token();
-
-          return String.valueOf(operation);
-        }
-
-        if(current_token.value.equals("maior")) 
-        {
-          consume_token();
-
-          boolean operation = Integer.valueOf(value.value) > Integer.valueOf(current_token.value);
-
-          consume_token();
-
-          return String.valueOf(operation);
-        }
-      }
+      consume_token(Token.Types.STRING);
 
       if((current_token.type == Token.Types.IDENTIFIER || (current_token.type == Token.Types.CPARAM)))
       {

@@ -135,6 +135,8 @@ public class Interpreter extends InterpreterUtils
       {
         EvalDot dot_exp = new EvalDot(this, identifier);
         dot_exp.eval();
+
+        return true;
       }
 
       if(current_token.type == Token.Types.OPARAM)
@@ -161,6 +163,8 @@ public class Interpreter extends InterpreterUtils
         {
           System.out.println(e);
         }
+
+        return true;
       }
 
       if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("=")))
@@ -171,6 +175,12 @@ public class Interpreter extends InterpreterUtils
 
         variables.put(identifier.value, value);
         return true;
+      }
+
+      if(current_token.value == null)
+      {
+        current_token.print();
+        System.exit(1);
       }
 
       if(current_token.value.equals("args"))

@@ -1,5 +1,4 @@
-foo = 1 + 1
-bar = 1 - 1
+one = 1
+foo = 10 / 10
 
-print(foo)
-print(bar ) 
+print(foo * 10 )

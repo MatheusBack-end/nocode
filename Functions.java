@@ -154,7 +154,7 @@ public class Functions extends InterpreterUtils
         }
       }
 
-      if(current_token.type == Token.Types.EQUALS)
+      if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("=")))
       {
         consume_token();
         
@@ -172,7 +172,7 @@ public class Functions extends InterpreterUtils
         return true;
       }
       
-      //System.out.println(current_token.type + " " + current_token.value);
+      System.out.println("function error");
       System.exit(0);
     }
 

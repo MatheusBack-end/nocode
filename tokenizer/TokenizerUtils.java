@@ -3,7 +3,7 @@ import java.util.*;
 public class TokenizerUtils
 {
   protected String source;
-  private final String[] KEYWORDS = {"args", "diferente", "criar", "fim", "igual", "maior", "menor", "pacote", "retornar", "se"};
+  private final String[] KEYWORDS = {"args", "criar", "diferente", "fim", "igual", "maior", "menor", "nulo", "pacote", "retornar", "se"};
   private final char[] OPERATORS = {'*', '+', '-', '/',  '='};
   private final char[] DELIMITERS = {'(', ')'};
   private final Token.Types[] DELIMITERS_TYPES = {Token.Types.OPARAM, Token.Types.CPARAM};

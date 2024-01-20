@@ -7,8 +7,11 @@ public class Token
   {
     this.value = value;
     this.type = type;
+  }
 
-    //System.out.println(value + " " + type);
+  public void print()
+  {
+    System.out.println(value + " " + type);
   }
 
   public enum Types
