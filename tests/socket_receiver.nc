@@ -5,6 +5,7 @@ contador = 1
 limite = 5
 
 soquete = criar DatagramSocket(19132)
+emita("soquete criado")
 
 repeticao:
   memoria_temporaria = "                  " 
@@ -24,7 +25,7 @@ fim
 
 
 repeticao()
-soquete.close( )
+soquete.close()
 
 
 

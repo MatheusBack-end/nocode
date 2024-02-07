@@ -1,11 +1,15 @@
-my_fib args n:
+fib args n:
+
+  emita(" vvvvvvv ")
+  print(n)
+
   se n menor 2:
     retornar n
   fim
 
-  retornar my_fib(n - 1) + my_fib(n - 2)
+  value = fib(1 - n) + fib(2 - n)
+  retornar value
 fim
 
-n = 1
-foo = n + 2
-print(2 = 1)
+
+print( fib( 3 ) )

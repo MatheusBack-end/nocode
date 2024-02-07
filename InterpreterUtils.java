@@ -197,11 +197,24 @@ public class InterpreterUtils extends Consumer
 
     if(current_token.type == Token.Types.OPARAM)
     {
+      boolean back_to_mt = false;
+
+      if(in_math_expression)
+      {
+        in_math_expression = false;
+        back_to_mt = true;
+      }
+
       consume_token(Token.Types.OPARAM);
       
       while(!(current_token.type == Token.Types.CPARAM))
       {
         args.add(expression());
+      }
+
+      if(back_to_mt)
+      {
+        in_math_expression = true;
       }
 
       consume_token(Token.Types.CPARAM);
@@ -313,6 +326,11 @@ public class InterpreterUtils extends Consumer
 
   public Object expression()
   {
+    //Scanner scanner = new Scanner(System.in);
+    //scanner.nextLine();
+    //current_token.print();
+    //System.out.print(in_math_expression);
+
     if(current_token.type == Token.Types.KEYWORD && current_token.value.equals("criar"))
     {
       return create_instance();
@@ -333,6 +351,7 @@ public class InterpreterUtils extends Consumer
     if(current_token.type == Token.Types.NUMBER)
     {
       Token token_number = current_token;
+      current_token.print();
       int number = Integer.parseInt(current_token.value);
       consume_token(Token.Types.NUMBER);
 
@@ -343,9 +362,7 @@ public class InterpreterUtils extends Consumer
 
       if(is_math_expression() && !(in_math_expression))
       {
-        //System.out.println("math exp");
         MathExpression exp = new MathExpression(this, token_number);
-        
         return exp.eval();
       }
 
@@ -359,6 +376,14 @@ public class InterpreterUtils extends Consumer
 
       if(current_token.type == Token.Types.OPARAM)
       {
+        boolean back_to_mt = false;
+
+        if(in_math_expression)
+        {
+          back_to_mt = true;
+          in_math_expression = false;
+        }
+
         consume_token();
 
         List<Object> args = new ArrayList<Object>();
@@ -367,36 +392,48 @@ public class InterpreterUtils extends Consumer
           args.add(expression());
         }
 
+        if(back_to_mt)
+        {
+          in_math_expression = true;
+          back_to_mt = false;
+        }
+
         consume_token();
 
-        if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("+")))
-        {
-          consume_token();
-          Object value_1 = interpreter.invoke_function(identifier.value, args);
-          Object value_2 = expression();
-         
-          System.out.println(value_1 + " + " + value_2);
-          return (int) value_1 + (int) value_2;
-        }
+        Object return_result = null;
 
         if(interpreter.functions.containsKey(identifier.value))
         {
-          return interpreter.invoke_function(identifier.value, args);
+          return_result = interpreter.invoke_function(identifier.value, args);
         }
 
-        try
+        else
         {
-          Method method = Interpreter.class.getMethod(identifier.value, String.class);
-          method.invoke(interpreter, args.get(0));
+          try
+          {
+            Method method = Interpreter.class.getMethod(identifier.value, String.class);
+            return_result = method.invoke(interpreter, args.get(0));
+          }
 
-          return "";
-        } 
+          catch(Exception e)
+          {
 
-        catch(Exception e)
+          }
+        }
+
+        if(is_math_expression() && !(in_math_expression))
+        {
+          MathExpression exp = new MathExpression(this, new Token(String.valueOf(return_result), Token.Types.NUMBER, new Loc(0,0,0)));
+          return_result = exp.eval();
+        }
+
+        if(return_result == null)
         {
           System.out.println("função: " + identifier.value + " não foi definida >:/");
           System.exit(1);
         }
+
+        return return_result;
       }
 
       if(is_boolean_expression())
@@ -420,7 +457,7 @@ public class InterpreterUtils extends Consumer
       {
         if(is_math_expression() && !(in_math_expression))
         {
-          Token token_number = new Token(String.valueOf(variables.get(identifier.value)), Token.Types.NUMBER);
+          Token token_number = new Token(String.valueOf(variables.get(identifier.value)), Token.Types.NUMBER, new Loc(0,0,0));
           MathExpression exp = new MathExpression(this, token_number);
           
           return exp.eval();

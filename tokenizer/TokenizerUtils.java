@@ -3,6 +3,7 @@ import java.util.*;
 public class TokenizerUtils
 {
   protected String source;
+  protected int current_line = 0;
   private final String[] KEYWORDS = {"args", "criar", "diferente", "fim", "igual", "maior", "menor", "nulo", "pacote", "retornar", "se"};
   private final char[] OPERATORS = {'*', '+', '-', '/',  '='};
   private final char[] DELIMITERS = {'(', ')'};
@@ -17,7 +18,6 @@ public class TokenizerUtils
 
   public boolean is_operator(Character letter)
   {
-    //System.out.println(letter + " " + (Arrays.binarySearch(OPERATORS, (char) letter) >= 0));
     return Arrays.binarySearch(OPERATORS, (char) letter) >= 0;
   }
 
@@ -69,9 +69,9 @@ public class TokenizerUtils
     return source.charAt(++position);
   }
 
-  public Token get_token(String value, Token.Types type)
+  public Token get_token(String value, Token.Types type, Loc loc)
   {
-    Token token = new Token(value, type);
+    Token token = new Token(value, type, loc);
     position++;
 
     return token;

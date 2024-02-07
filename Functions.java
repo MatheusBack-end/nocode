@@ -122,18 +122,9 @@ public class Functions extends InterpreterUtils
 
       if(current_token.type == Token.Types.OPARAM)
       {
-        consume_token();
-
-        List<Object> args = new ArrayList<Object>();
-
-        while(current_token.type != Token.Types.CPARAM)
-        {
-          args.add(expression());
-        }
-
-        consume_token();
-
-
+        List<Object> args = get_args();
+        Class[] arg_types = get_arg_types(args.toArray(new Object[0]));
+       
         if(interpreter.functions.containsKey(identifier.value))
         {
           interpreter.invoke_function(identifier.value, args);
@@ -142,7 +133,7 @@ public class Functions extends InterpreterUtils
 
         try
         {
-          Method method = Interpreter.class.getMethod(identifier.value, get_arg_types(args.toArray(new Object[0])));
+          Method method = Interpreter.class.getMethod(identifier.value, arg_types);
           method.invoke(interpreter, (Object[]) args.toArray(new Object[0]));
 
           return true;
@@ -156,7 +147,7 @@ public class Functions extends InterpreterUtils
 
       if(current_token.type == Token.Types.OPERATOR && (current_token.value.equals("=")))
       {
-        consume_token();
+        consume_token(Token.Types.OPERATOR);
         
         Object value = expression();
 

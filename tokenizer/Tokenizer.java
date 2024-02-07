@@ -33,18 +33,18 @@ public class Tokenizer extends TokenizerUtils
 
   public Token get_next_token()
   {
-    //System.out.println(get_current_letter());
     if(position >= source.length())
-      return new Token(null, Token.Types.EOF);
+      return new Token(null, Token.Types.EOF, new Loc(source.length(), source.length(), current_line));
 
     Character letter = get_current_letter();
 
     while(Character.isWhitespace(letter) || letter.equals('\n'))
     {
       if(!can_consume())
-        return new Token(null, Token.Types.EOF);
+        return new Token(null, Token.Types.EOF, new Loc(source.length(), source.length(), current_line));
 
       letter = consume_letter();
+      if(letter.equals('\n')) current_line++;
     }
 
     if(Character.isLetter(letter))
@@ -62,14 +62,12 @@ public class Tokenizer extends TokenizerUtils
       }
 
       String identifier = get_string(start);
-      
-      //if(!identifier.equals("m"))
-        //System.out.println("debug: " + identifier + ";");
 
       if(is_keyword(identifier))
-        return new Token(identifier, Token.Types.KEYWORD);
+        return new Token(identifier, Token.Types.KEYWORD, new Loc(start, position, current_line));
 
-      return new Token(identifier, Token.Types.IDENTIFIER);
+
+      return new Token(identifier, Token.Types.IDENTIFIER, new Loc(start, position, current_line));
     }
 
     if(Character.isDigit(letter))
@@ -84,18 +82,18 @@ public class Tokenizer extends TokenizerUtils
           break;
       }
 
-      return new Token(get_string(start), Token.Types.NUMBER);
+      return new Token(get_string(start), Token.Types.NUMBER, new Loc(start, position, current_line));
     }
 
     if(is_dot(letter))
-      return get_token(".", Token.Types.DOT);
+      return get_token(".", Token.Types.DOT, new Loc(position, position, current_line));
 
     if(is_block(letter))
-      return get_token(":", Token.Types.BLOCK);
+      return get_token(":", Token.Types.BLOCK, new Loc(position, position, current_line));
 
     if(is_operator(letter))
     {
-      Token operator = new Token(letter.toString(), Token.Types.OPERATOR);
+      Token operator = new Token(letter.toString(), Token.Types.OPERATOR, new Loc(position, position, current_line));
       
       if(can_consume())
         consume_letter();
@@ -108,15 +106,15 @@ public class Tokenizer extends TokenizerUtils
       Token.Types type = get_delimiter_type(letter);
 
       if(type == Token.Types.OPARAM)
-        return get_token(letter.toString(), Token.Types.OPARAM);
+        return get_token(letter.toString(), Token.Types.OPARAM, new Loc(position, position, current_line));
       
-      return get_token(letter.toString(), Token.Types.CPARAM);
+      return get_token(letter.toString(), Token.Types.CPARAM, new Loc(position, position, current_line));
     }
 
     if(is_quotes(letter))
     {
       if(!can_consume())
-        return new Token(null, Token.Types.EOF);
+        return new Token(null, Token.Types.EOF, new Loc(position, position, current_line));
 
       letter = consume_letter();
 
@@ -133,7 +131,7 @@ public class Tokenizer extends TokenizerUtils
       String string = get_string(start);
       position++;
 
-      return new Token(string, Token.Types.STRING);
+      return new Token(string, Token.Types.STRING, new Loc(start, position, current_line));
     }
 
     position++;
